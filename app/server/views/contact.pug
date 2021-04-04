@@ -1,0 +1,48 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+
+
+    .content-former.cd-form(style="width: 60%; position: relative; left: 25%; top:15%; z-index: 2;")
+        form(method="post")#contact
+            .page-info
+                h1 Contact
+                h6 If you have questions to teacher or admin.
+                h6 Use the form below.
+                br
+
+            .form-group
+                select#contact-to.form-control(name='contact-to' style='box-shadow: none;border-radius:0px; outline: none; color: #5E798B')
+                    option(value='' disabled='' selected='') Send To:
+                    each item in sendto
+                        option(style='color: black;' value=item.email)= item.name + " - " + item.class.charAt(0).toUpperCase() + item.class.substr(1).toLowerCase()
+            .form-group
+                textarea#contact-message.form-control(name='contact-message' rows="3" placeholder=' ' required='' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; height: 100px;')
+                label.input-form(for='contact-message') Message..
+            .cd_modal-footer
+                button.btn.btfooter(style='width: 20%; ' type='submit') Send
+
+
+
+    include modals/error
+
+    script.
+
+        jQuery(document).ready(function ($) {
+            $('#contact').ajaxForm({
+                type: 'POST',
+                url: '/contact',
+                success: function (responseText, status, xhr, $form) {
+                    if (status == 'success') {
+                        $('#alert-modal-title').html('Message sent!');
+                        $('#alert-modal-body').html('Please wait for response in the email you entered in IET.');
+                        $('#alert-modal').modal('show');
+                        setTimeout(function () {
+                            window.location.href = '/';
+                        }, 3000);
+                    }
+                }
+            });
+        });
