@@ -1,0 +1,67 @@
+.header
+    .logo
+        a(href='/home')
+            img(src='/css/logo.png' width='55' height='45' alt='logo' style="left: 25px;position: absolute;")
+            h1 IET
+            h8 Interactive Education Tool
+    .search_box
+        .dropdown1#dropdown-year(data-control='checkbox-dropdown' )
+            label.dropdown1-label Year
+            ul.dropdown1-list
+                label.dropdown1-option
+                    input(type='radio' name='dropdown1-group1' value='2020-a')
+                    |                         2020-A
+                label.dropdown1-option
+                    input(type='radio' name='dropdown1-group1' value='2020-B')
+                    |                         2020-B
+                label.dropdown1-option
+                    input(type='radio' name='dropdown1-group1' value='2021-A')
+                    |                         2021-A
+                label.dropdown1-option
+                    input(type='radio' name='dropdown1-group1' value='2021-B')
+                    |                         2021-B
+
+input#openSidebarMenu.openSidebarMenu(type='checkbox')
+label.sidebarIconToggle(for='openSidebarMenu')
+    .spinner.diagonal.part-1
+    .spinner.horizontal
+    .spinner.diagonal.part-2
+#sidebarMenu
+    ul.sidebarMenuInner
+        li
+            a(href='/home' ) Home
+        if(user !== undefined && user.class == "pupil")
+            li
+                a(href='/lessons' ) Lessons
+            li
+                a(href='/calender' ) Calender
+            li
+                a(href='/grades' ) Grades
+            li
+                a(href='/contact') Contact
+        else if(user !== undefined && user.class == "parent")
+            li
+                a(href='/grades' ) Grades
+            li
+                a(href='/calender' ) Calender
+            li
+                a(href='/contact') Contact
+        else if(user !== undefined && user.class == "teacher")
+            li
+                a(href='/lessons' ) Lessons
+            li
+                a(href='/grades' ) Grades
+        else if(user !== undefined && user.class == "admin")
+            li
+                a(href='/users' ) Years
+            li
+                a(href='/users' ) Users
+            li
+                a(href='/lessons' ) Lessons
+
+        if(user !== undefined)
+            .section(style='position: absolute; display: inline-flex; width: 100%; bottom: 0;')
+                li(style='width: 195px; overflow-x: hidden;')
+                    a(href='/my-user' style='width: 195px; overflow-x: hidden;')=user.name
+
+script(src='/js/home.js')
