@@ -1,0 +1,29 @@
+ipeline {
+    agent none
+    stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:6-alpine' 
+                    args '-p 3005:3005'
+                }
+            }
+            steps {
+                sh 'npm install'
+                echo 'finished build'
+            }
+        }
+        stage('Tests') {
+            agent {
+                docker {
+                    image 'node:10-alpine'
+                    args '-p 3005:3005'
+                }
+            }
+            steps {
+                sh 'npm run test'
+                echo 'Finished Tests'
+            }
+        }
+    }
+}
