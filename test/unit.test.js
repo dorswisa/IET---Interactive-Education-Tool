@@ -12,13 +12,13 @@ var app = express();
 
 app.locals.pretty = true;
 app.set('port', process.env.PORT || 3005);
-app.set('views', '/app/server/views');
+app.set('views', './app/server/views');
 app.set('view engine', 'pug');
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(require('stylus').middleware({ src: '/app/public' }));
-app.use(express.static( '/app/public'));
+app.use(require('stylus').middleware({ src: './app/public' }));
+app.use(express.static( './app/public'));
 
 // build mongo database connection url //
 
