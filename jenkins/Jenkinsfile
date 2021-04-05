@@ -16,12 +16,12 @@ pipeline {
         stage('Tests') {
             agent {
                 docker {
-                    image 'node:10-alpine'
+                    image 'node:6-alpine'
                     args '-p 3005:3005'
                 }
             }
             steps {
-                sh 'npm run test'
+                sh 'npm test'
                 echo 'Finished Tests'
             }
         }
