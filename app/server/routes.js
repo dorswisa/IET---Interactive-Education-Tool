@@ -24,7 +24,6 @@ module.exports = function(app) {
         login page
     */
 	app.get('/', function(req, res){
-		console.log(req.headers);
 		if(req.query['key'] !== undefined) {
 			console.log("111");
 			DBM.validatePasswordKey(req.query['key'], req.ip, function (e, o) {
@@ -75,7 +74,6 @@ module.exports = function(app) {
 	});
 
 	app.post('/forget', function(req, res){
-		console.log(req.ip);
 		DBM.generatePasswordKey(req.body['reset-password-email'], req.body['reset-password-id'], req.ip, function(e, account){
 			if (e){
 				res.status(400).send(e);
