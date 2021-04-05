@@ -1,4 +1,3 @@
-
 var http = require('http');
 var express = require('express');
 var session = require('express-session');
@@ -10,43 +9,46 @@ const request = require('supertest');
 
 var app = express();
 
-app.locals.pretty = true;
-app.set('port', process.env.PORT || 3005);
-app.set('views', './app/server/views');
-app.set('view engine', 'pug');
-app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(require('stylus').middleware({ src: './app/public' }));
-app.use(express.static( './app/public'));
+before(function() {
+
+    app.locals.pretty = true;
+    app.set('port', process.env.PORT || 3005);
+    app.set('views', './app/server/views');
+    app.set('view engine', 'pug');
+    app.use(cookieParser());
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: true}));
+    app.use(require('stylus').middleware({src: './app/public'}));
+    app.use(express.static('./app/public'));
 
 // build mongo database connection url //
 
-process.env.DB_HOST = process.env.DB_HOST || 'localhost'
-process.env.DB_PORT = process.env.DB_PORT || 27017;
-process.env.DB_NAME = process.env.DB_NAME || 'IET';
+    process.env.DB_HOST = process.env.DB_HOST || 'localhost'
+    process.env.DB_PORT = process.env.DB_PORT || 27017;
+    process.env.DB_NAME = process.env.DB_NAME || 'IET';
 
-if (app.get('env') != 'live'){
-    process.env.DB_URL = 'mongodb://'+process.env.DB_HOST+':'+process.env.DB_PORT;
-}	else {
+    if (app.get('env') != 'live') {
+        process.env.DB_URL = 'mongodb://' + process.env.DB_HOST + ':' + process.env.DB_PORT;
+    } else {
 // prepend url with authentication credentials //
-    process.env.DB_URL = 'mongodb://'+process.env.DB_USER+':'+process.env.DB_PASS+'@'+process.env.DB_HOST+':'+process.env.DB_PORT;
-}
+        process.env.DB_URL = 'mongodb://' + process.env.DB_USER + ':' + process.env.DB_PASS + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT;
+    }
 
-app.use(session({
-        secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
-        proxy: true,
-        resave: true,
-        saveUninitialized: true,
-        store: new MongoStore({ url: process.env.DB_URL+"/"+process.env.DB_NAME })
-    })
-);
+    app.use(session({
+            secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
+            proxy: true,
+            resave: true,
+            saveUninitialized: true,
+            store: new MongoStore({url: process.env.DB_URL + "/" + process.env.DB_NAME})
+        })
+    );
 
-require('../app/server/routes')(app);
+    require('../app/server/routes')(app);
 
 
-http.createServer(app).listen(app.get('port'), function(){
-    console.log('Express server listening on port ' + app.get('port'));
+    http.createServer(app).listen(app.get('port'), function () {
+        console.log('Express server listening on port ' + app.get('port'));
+    });
 });
 
 describe('Try to route "/" (Login page)', function() {
