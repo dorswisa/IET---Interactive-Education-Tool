@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'node:6-alpine'
+                    image 'mongo'
                     args '-p 3005:3005'
                 }
             }
@@ -16,7 +16,7 @@ pipeline {
         stage('Tests') {
             agent {
                 docker {
-                    image 'node:10-alpine'
+                    image 'mongo'
                     args '-p 3005:3005'
                 }
             }
