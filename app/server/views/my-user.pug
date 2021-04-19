@@ -1,0 +1,33 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+
+    .content-former(style="width: 60%; position: relative; left: 25%; top:15%; z-index: 2;")
+        form(method="post")#edit-user-form
+            .page-info
+                h1 Edit My-User
+            .form-group
+                input#edit-username.form-control(name='edit-username' placeholder=' ' type='text' required='' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;' value=user.name)
+                label.input-form(for='edit-username') Full Name
+            .form-group
+                input#edit-ID.form-control(name='edit-ID' placeholder=' ' type='text' required='' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;' value=user.id)
+                label.input-form(for='edit-ID') ID
+            .form-group
+                input#edit-email.form-control(name='edit-email' placeholder=' ' type='email' pattern='[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+' required='' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;' value=user.email)
+                label.input-form(for='edit-email') E-mail
+            .form-group
+                .form-group
+                    input#edit-password.form-control(name='edit-password' placeholder=' ' type='password' pattern=".{6,}"  title="Password Should Be At Least 6 Characters" style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;')
+                    label.input-form(for='edit-password') Password
+                    a.hide-password(href='#0')
+                        img(src='/css/visibility.png')
+            .cd_modal-footer
+                button.btn.btfooter(style='width: 20%; ' type='submit') Edit
+                .div(style="float: right;")
+                    button.bg-warning#btn-logout(type='button' style='width: 100px; border-radius: 34rem;font-size: 14px; font-weight: bold; height: 46px; border: none; padding: 10px; outline: none;') Log-Out
+
+    include modals/error
+
+    script(src='/js/my-user.js')
