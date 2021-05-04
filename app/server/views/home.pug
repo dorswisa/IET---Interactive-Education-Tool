@@ -13,20 +13,20 @@ block content
             h1 Hello #{user.name},
             h3 Welcome back to Interactive Education Tool.
             br
-            h4 You are logged in to #{user.class} profile.
-            if(user.class == 'admin')
+            h4 You are logged in to #{user.type} profile.
+            if(user.type == 'admin')
                 h4 As a an admin you can create a study year and add\delete\edit pupils, teachers and parents,
                 h4 you can add lessons and attach to a pupil and teacher.
-            else if(user.class == 'pupil')
+            else if(user.type == 'pupil')
                 h4 As a pupil you can watch the lessons your teachers have prepared,
                 h4 do your homework or assignments,
                 h4 watch your calender and your grades.
                 h4 You can also send a message directly to the admin or teachers.
-            else if(user.class == 'parent')
+            else if(user.type == 'parent')
                 h4 As a parent you can view your child or children's data,
                 h4 such as calender and grades.
                 h4 You can also send a message directly to the admin or teachers.
-            else if(user.class == 'teacher')
+            else if(user.type == 'teacher')
                 h4 As a teacher you will be able to create meetings, assignments and homework,
                 h4 you will be able to see and edit your student's grades.
             h4 You can edit your user and logout by clicking on the username.
