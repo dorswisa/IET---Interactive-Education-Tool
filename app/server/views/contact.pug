@@ -17,7 +17,7 @@ block content
                 select#contact-to.form-control(name='contact-to' style='box-shadow: none;border-radius:0px; outline: none; color: #5E798B')
                     option(value='' disabled='' selected='') Send To:
                     each item in sendto
-                        option(style='color: black;' value=item.email)= item.name + " - " + item.class.charAt(0).toUpperCase() + item.class.substr(1).toLowerCase()
+                        option(style='color: black;' value=item.email)= item.name + " - " + item.type.charAt(0).toUpperCase() + item.type.substr(1).toLowerCase()
             .form-group
                 textarea#contact-message.form-control(name='contact-message' rows="3" placeholder=' ' required='' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; height: 100px;')
                 label.input-form(for='contact-message') Message..

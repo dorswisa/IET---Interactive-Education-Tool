@@ -30,7 +30,7 @@ label.sidebarIconToggle(for='openSidebarMenu')
     ul.sidebarMenuInner
         li
             a(href='/home' ) Home
-        if(user !== undefined && user.class == "pupil")
+        if(user !== undefined && user.type == "Pupil")
             li
                 a(href='/lessons' ) Lessons
             li
@@ -39,21 +39,23 @@ label.sidebarIconToggle(for='openSidebarMenu')
                 a(href='/grades' ) Grades
             li
                 a(href='/contact') Contact
-        else if(user !== undefined && user.class == "parent")
+        else if(user !== undefined && user.type == "Parent")
             li
                 a(href='/grades' ) Grades
+            li
+                a(href='/users' ) Users
             li
                 a(href='/calender' ) Calender
             li
                 a(href='/contact') Contact
-        else if(user !== undefined && user.class == "teacher")
+        else if(user !== undefined && user.type == "Teacher")
             li
                 a(href='/lessons' ) Lessons
             li
                 a(href='/grades' ) Grades
-        else if(user !== undefined && user.class == "admin")
+        else if(user !== undefined && user.type == "Admin")
             li
-                a(href='/users' ) Years
+                a(href='/years' ) Years
             li
                 a(href='/users' ) Users
             li
