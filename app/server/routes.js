@@ -1,5 +1,4 @@
 
-var CF = require('./modules/class-list');
 var DBM = require('./modules/manager');
 var EM = require('./modules/email-dispatcher');
 
@@ -25,7 +24,6 @@ module.exports = function(app) {
     */
 	app.get('/', function(req, res){
 		if(req.query['key'] !== undefined) {
-			console.log("111");
 			DBM.validatePasswordKey(req.query['key'], req.ip, function (e, o) {
 				if (o != null) {
 					req.session.passKey = req.query['key'];
@@ -121,7 +119,7 @@ module.exports = function(app) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			DBM.updateUser( req.session.user._id,{
+			DBM.updateUser( req.session.user.id,{
 				name	: req.body['edit-username'],
 				id		: req.body['edit-ID'],
 				email	: req.body['edit-email'],
@@ -148,7 +146,7 @@ module.exports = function(app) {
 	*/
 
 	app.get('/contact', function(req, res) {
-		if (req.session.user == null || req.session.user.class == "admin" || req.session.user.class == "teacher"){
+		if (req.session.user == null || req.session.user.type == "admin" || req.session.user.type == "teacher"){
 			res.redirect('/');
 		}	else{
 			DBM.getAllTeachersNadmin(function(e, array) {
@@ -168,6 +166,248 @@ module.exports = function(app) {
 			}
 		});
 	})
+
+	app.get('/users', function(req, res) {
+		if (req.session.user == null || req.session.user.type == "pupil" || req.session.user.type == "teacher"){
+			res.redirect('/');
+		}	else{
+			if(req.session.user.type == "Admin") {
+				DBM.getAllUsers(function (e, usersarray) {
+					DBM.getAllParents(function (e, parentsarray) {
+						res.render('users', {
+							udata: req.session.user,
+							users: usersarray,
+							parents: parentsarray
+						});
+					});
+				});
+			}
+			else {
+				DBM.getAllMyPupils(req.session.user.id, function (e, array) {
+					res.render('users', {
+						udata: req.session.user,
+						users: array
+					});
+				});
+			}
+
+		}
+	});
+
+	app.post('/delete-user', function(req, res){
+		if(req.session.user.type == "Admin")
+		{
+			DBM.deleteAccount(Object.keys(req.body)[0], function(e, obj){
+				if (!e){
+					res.status(200).send('ok');
+				}	else{
+					res.status(400).send('record not found');
+				}
+			});
+		}
+		else
+		{
+			res.status(400).send('record not found');
+		}
+	});
+
+	app.post('/connect-user', function(req, res){
+		if(req.session.user.type == "Admin" || req.session.user.type == "Parent" )
+		{
+			DBM.ConnectUser(Object.keys(req.body)[0], function(e, obj){
+				if (!e){
+					req.session.user = obj;
+					DBM.generateLoginKey(req.session.user.id, req.ip, function(key){
+						res.cookie('login', key, { maxAge: 900000 });
+						res.status(200).send('ok');
+					});
+				}	else{
+					res.status(400).send(e);
+				}
+			});
+		}
+		else
+		{
+			res.status(400).send('record not found');
+		}
+	});
+
+	app.post('/edit-user', function(req, res){
+		if (req.session.user == null && req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.updateUser( req.body.pastid,{
+				name	: req.body['edit-username'],
+				id		: req.body['edit-id'],
+				email	: req.body['edit-email'],
+				pass	: req.body['edit-password'],
+				type	: req.body['edit-type'],
+				class	: req.body['edit-class'],
+				parent	: req.body['edit-parent']
+			}, function(e, o){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/edit-user', function(req, res){
+		if (req.session.user == null && req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.CreateNewUser({
+				name	: req.body['create-username'],
+				id		: req.body['create-id'],
+				email	: req.body['create-email'],
+				pass	: req.body['create-password'],
+				type	: req.body['create-type'],
+				class	: req.body['create-class'],
+				parent	: req.body['create-parent']
+			}, function(e, o){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.get('/lessons', function(req, res) {
+		if (req.session.user == null || req.session.user.type == "pupil" || req.session.user.type == "teacher"){
+			res.redirect('/');
+		}	else {
+			if (req.session.user.type == "Admin") {
+				DBM.getAllTeachers(function (e, teachersarray) {
+					DBM.getAllYears(function (e, yearsarray) {
+						DBM.getAllLessons(function (e, lessonsarray) {
+							res.render('lessons', {
+								udata	: req.session.user,
+								lessons	: lessonsarray,
+								teachers: teachersarray,
+								years	: yearsarray
+							});
+						});
+					});
+				});
+			}
+		}
+	});
+
+	app.get('/years', function(req, res) {
+		if (req.session.user == null || req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else {
+			DBM.getAllYears(function (e, yearsarray) {
+				res.render('years', {
+					udata: req.session.user,
+					years: yearsarray
+				});
+			});
+		}
+	});
+
+	app.post('/delete-year', function(req, res){
+		if(req.session.user.type == "Admin")
+		{
+			DBM.deleteYear(Object.keys(req.body)[0], function(e, obj){
+				if (!e){
+					res.status(200).send('ok');
+				}	else{
+					res.status(400).send('record not found');
+				}
+			});
+		}
+		else
+		{
+			res.status(400).send('record not found');
+		}
+	});
+
+	app.post('/edit-year', function(req, res){
+		if (req.session.user == null || req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.updateYear( req.body.edit,{
+				name	: req.body['year'],
+				upgrade	: req.body['start-year'] != undefined ? true : false
+			}, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/create-year', function(req, res){
+		if (req.session.user == null || req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.CreateNewYear({
+				name	: req.body['year'],
+				upgrade	: req.body['start-year'] != undefined ? true : false
+			}, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/create-lesson', function(req, res){
+		if (req.session.user == null && req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.CreateNewLesson({
+				year	: req.body['create-year'],
+				name	: req.body['create-name'],
+				teacher	: req.body['create-teacher'],
+				class	: req.body['create-class'],
+				day		: req.body['create-day'],
+				start	: parseInt(req.body['create-start']),
+				end		: parseInt(req.body['create-end'])
+			}, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/edit-lesson', function(req, res){
+		if (req.session.user == null && req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			console.log(req.body);
+			DBM.EditLesson(req.body.pastid,{
+				year	: req.body['edit-year'],
+				name	: req.body['edit-name'],
+				teacher	: req.body['edit-teacher'],
+				class	: req.body['edit-class'],
+				day		: req.body['edit-day'],
+				start	: parseInt(req.body['edit-start']),
+				end		: parseInt(req.body['edit-end'])
+			}, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+
+
 	/*
 		rest of pages
 	*/
