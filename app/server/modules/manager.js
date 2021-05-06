@@ -630,7 +630,32 @@ exports.EditLesson = function(id,newData, callback)
 
 
 
-exports.deleteYear = function(name, callback)			// if we want to delete one user
+exports.deleteLesson = function(id, callback)			// if we want to delete one lesson
+{
+	users.find().toArray(function(e, res) {
+		for(var i = 0; i<res.length; i++)
+		{
+			if(res[i].lessons != undefined)
+			{
+				for(var j=0; j<res[i].lessons.length; j++)
+				{
+					if(res[i].lessons[j].equals(getObjectId(id)))
+					{
+						res[i].lessons.splice(j, 1);
+						users.findOneAndUpdate({id: res[i].id}, {$set: res[i]}, {returnOriginal: false});
+						break;
+					}
+				}
+			}
+		}
+	});
+	console.log("The lesson has been deleted!");
+	lessons.deleteOne({_id: getObjectId(id)}, callback);
+}
+
+
+
+exports.deleteYear = function(name, callback)			// if we want to delete one year
 {
 	console.log("The year has been deleted!");
 	years.deleteOne({name: name}, callback);

@@ -406,6 +406,23 @@ module.exports = function(app) {
 		}
 	});
 
+	app.post('/delete-lesson', function(req, res){
+		if(req.session.user.type == "Admin")
+		{
+			DBM.deleteLesson(Object.keys(req.body)[0], function(e, obj){
+				if (!e){
+					res.status(200).send('ok');
+				}	else{
+					res.status(400).send('record not found');
+				}
+			});
+		}
+		else
+		{
+			res.status(400).send('record not found');
+		}
+	});
+
 
 
 	/*
