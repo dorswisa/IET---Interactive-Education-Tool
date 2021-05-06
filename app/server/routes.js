@@ -254,7 +254,7 @@ module.exports = function(app) {
 		}
 	});
 
-	app.post('/edit-user', function(req, res){
+	app.post('/create-user', function(req, res){
 		if (req.session.user == null && req.session.user.type != "Admin"){
 			res.redirect('/');
 		}	else{
