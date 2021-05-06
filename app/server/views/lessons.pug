@@ -1,0 +1,66 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+    .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
+        .page-info(style="text-align: center; ")
+            h1(style="display: inline; margin-right: 1em;") Lessons
+            if(user.type == 'Admin')
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none;")
+                    i.fa.fa-plus-square
+                    .tooltipp  Create lesson
+                h6 Drag and drop lesson to edit/delete.
+                h6 To create new lesson press on the icon.
+                br
+
+        ul#list.list
+            .top-table
+                .year-top Year
+                .lesson-top Subject
+                .teacher-top Teacher
+                .class-lsn-top Class
+                .date-top Date
+            each lsn in lessons
+                li.list__item
+                    .drag-me
+                        i.fas.fa-list-alt
+                        .info
+                            .year=lsn.year
+                            .lesson=lsn.name
+                            - var found = teachers.find(element => element.id == lsn.teacher);
+                            .teacher=found.name
+                            .class-lsn=lsn.class
+                            .date=lsn.day + " " + lsn.start +":00 - " + lsn.end + ":00"
+
+        #drop-area.drop-area
+            if(user.type == "Admin")
+                #delete.drop-area__item
+                    i.fas.fa-trash-alt
+                    .tooltipp(style="left: 3px; width: 100%;") Delete Lesson
+                #edit.drop-area__item
+                    i.fa.fa-edit
+                    .tooltipp(style="left: 10px;") Edit Lesson
+
+
+        .drop-overlay
+    if(user.type == 'Admin')
+        .cd-user-modal
+            // this is the entire modal form, including the background
+            .cd-user-modal-container
+                include modals/edit-lesson
+                include modals/create-lesson
+
+
+    include modals/error
+    include modals/delete
+
+    script.
+        $(document).ready(function () {
+            getValue(!{JSON.stringify(lessons)});
+        });
+
+    script(src='/js/draganddrop/modernizr.custom.js')
+    script(src='/js/draganddrop/draggabilly.pkgd.min.js')
+    script(src='/js/draganddrop/dragdrop.js')
+    script(src='/js/lessons.js')

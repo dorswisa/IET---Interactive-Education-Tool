@@ -374,7 +374,7 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 16;
+  z-index: 2;
   overflow-y: scroll;
   visibility: hidden;
   opacity: 0;
@@ -426,10 +426,10 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   overflow: hidden;
 }
 
-.cd-form {
+.cd-form, .modal-dialog {
   padding: 2em 2em 0 2em;
 }
-.cd-form [type=checkbox] {
+.cd-form [type=checkbox], .modal-dialog [type=checkbox] {
   content: url("blank-check-box.png");
   display: block;
   top: 20px;
@@ -442,7 +442,7 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   -moz-appearance: none;
   appearance: none;
 }
-.cd-form [type=checkbox]:checked {
+.cd-form [type=checkbox]:checked, .modal-dialog [type=checkbox]:checked {
   display: block;
   content: url("check-box.png");
   top: 20px;
@@ -460,13 +460,21 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
 .cd-form textarea:-webkit-autofill:focus,
 .cd-form select:-webkit-autofill,
 .cd-form select:-webkit-autofill:hover,
-.cd-form select:-webkit-autofill:focus {
+.cd-form select:-webkit-autofill:focus, .modal-dialog input:-webkit-autofill,
+.modal-dialog input:-webkit-autofill:hover,
+.modal-dialog input:-webkit-autofill:focus,
+.modal-dialog textarea:-webkit-autofill,
+.modal-dialog textarea:-webkit-autofill:hover,
+.modal-dialog textarea:-webkit-autofill:focus,
+.modal-dialog select:-webkit-autofill,
+.modal-dialog select:-webkit-autofill:hover,
+.modal-dialog select:-webkit-autofill:focus {
   border-bottom: 0.5px solid grey;
   -webkit-text-fill-color: #5E798B;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset;
   transition: background-color 5000s ease-in-out 0s;
 }
-.cd-form .input {
+.cd-form .input, .modal-dialog .input {
   width: 100%;
   height: 100%;
   font-size: 16px;
@@ -477,11 +485,11 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   border-radius: 15px;
   cursor: text;
 }
-.cd-form .form-group {
+.cd-form .form-group, .modal-dialog .form-group {
   position: relative;
   margin-bottom: 1.5rem;
 }
-.cd-form .input-form {
+.cd-form .input-form, .modal-dialog .input-form {
   position: absolute;
   top: 0;
   padding: 7px 0 0 13px;
@@ -489,31 +497,31 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   opacity: 0.5;
   color: grey;
 }
-.cd-form .form-control:placeholder-shown {
+.cd-form .form-control:placeholder-shown, .modal-dialog .form-control:placeholder-shown {
   background: transparent;
   border: none;
   border-bottom: 1px solid grey;
 }
-.cd-form .form-control {
+.cd-form .form-control, .modal-dialog .form-control {
   background: transparent;
   border: none;
   border-bottom: 1px solid grey;
 }
-.cd-form .form-control:focus + .input-form {
+.cd-form .form-control:focus + .input-form, .modal-dialog .form-control:focus + .input-form {
   font-size: 75%;
   transform: translate3d(0, -100%, 0);
   opacity: 1;
   background: transparent;
   border: none;
 }
-.cd-form .form-control:not(:placeholder-shown) + .input-form {
+.cd-form .form-control:not(:placeholder-shown) + .input-form, .modal-dialog .form-control:not(:placeholder-shown) + .input-form {
   font-size: 75%;
   transform: translate3d(0, -100%, 0);
   opacity: 1;
   background: transparent;
   border: none;
 }
-.cd-form .hide-password {
+.cd-form .hide-password, .modal-dialog .hide-password {
   display: inline-block;
   position: absolute;
   right: 0;
@@ -530,11 +538,11 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
   color: #5E798B;
   cursor: pointer;
 }
-.cd-form .hide-password img {
+.cd-form .hide-password img, .modal-dialog .hide-password img {
   width: 27px;
   height: 24px;
 }
-.cd-form .cd_modal-footer {
+.cd-form .cd_modal-footer, .modal-dialog .cd_modal-footer {
   border: none;
   padding-bottom: 20px;
 }
@@ -966,35 +974,40 @@ input[type=number] {
   pointer-events: none;
 }
 .top-table .year-top {
-  left: 10%;
-  width: 20%;
+  left: 4%;
+  width: 16%;
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
 }
 .top-table .teacher-top {
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
-  width: 20%;
+  width: 17%;
 }
 .top-table .lesson-top {
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
-  width: 21%;
+  width: 25%;
 }
 .top-table .date-top {
-  width: 16%;
+  text-align: center;
+  width: 20%;
   position: relative;
   display: inline-block;
   *display: inline;
   right: 0;
 }
 .top-table .class-lsn-top {
+  text-align: center;
   position: relative;
   display: inline-block;
-  width: 8%;
+  width: 10%;
   *display: inline;
 }
 .top-table .id-top {
@@ -1034,35 +1047,39 @@ input[type=number] {
   min-width: 2000%;
 }
 .info .year {
-  left: 5%;
-  width: 17.5%;
+  width: 16%;
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
 }
 .info .lesson {
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
   width: 25%;
 }
 .info .teacher {
+  text-align: center;
   position: relative;
   display: inline-block;
   *display: inline;
-  width: 24%;
+  width: 23%;
 }
 .info .class-lsn {
+  text-align: center;
   position: relative;
   display: inline-block;
-  width: 8.5%;
+  width: 8%;
   *display: inline;
 }
 .info .date {
+  text-align: center;
   position: relative;
   display: inline-block;
-  width: 22%;
   *display: inline;
+  width: 25%;
 }
 .info .id {
   left: 5%;
@@ -1096,6 +1113,10 @@ input[type=number] {
 
 #cd-create.is-selected, #cd-edit.is-selected {
   display: block;
+}
+
+.ui-timepicker-container {
+  z-index: 2 !important;
 }
 
 /*# sourceMappingURL=styles.css.map */

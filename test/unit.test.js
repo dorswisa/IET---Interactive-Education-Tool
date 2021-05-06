@@ -136,7 +136,7 @@ describe('Try to post in "/forget" with correct email and correct id.', function
         request(app)
             .post('/forget')
             .set('Accept', 'application/json')
-            .send({ 'reset-password-email': 'parent@gmail.com', 'reset-password-id': '3' })
+            .send({ 'reset-password-email': 'pupil@gmail.com', 'reset-password-id': '2' })
             .expect(200)
             .end(function(err, res){
                 if (err) return done(err);
@@ -173,27 +173,39 @@ describe('Try to post in "/my-user" and change the email for the user without lo
     });
 });
 
-var agent = request.agent(app);
 
-describe('Try to post in "/my-user" and change the information for the user with login to the user.', function() {
-    it('Should response code 200 (The information is in the database - user will login to system)', function(done) {
-        agent
-            .post('/login')
+describe('Try to route Users page)', function() {
+    it('Should response code 302 (Jump to Login Page)', function(done) {
+        request(app)
+            .get('/users')
             .set('Accept', 'application/json')
-            .send({ 'login-id': '3', 'login-password': '123456' })
-            .expect(200)
+            .expect(302)
             .end(function(err, res){
                 if (err) return done(err);
                 done();
             });
     });
+});
 
-    it('Should response code 200 (change the email)', function(done) {
-        agent
-            .post('/my-user')
+describe('Try to route Lessons page)', function() {
+    it('Should response code 302 (Jump to Login Page)', function(done) {
+        request(app)
+            .get('/lessons')
             .set('Accept', 'application/json')
-            .send({ 'edit-email': 'parent@gmail.com', 'edit-password': '', 'edit-ID': '3','edit-username': 'parentt' })
-            .expect(200)
+            .expect(302)
+            .end(function(err, res){
+                if (err) return done(err);
+                done();
+            });
+    });
+});
+
+describe('Try to route Years page)', function() {
+    it('Should response code 302 (Jump to Login Page)', function(done) {
+        request(app)
+            .get('/years')
+            .set('Accept', 'application/json')
+            .expect(302)
             .end(function(err, res){
                 if (err) return done(err);
                 done();
