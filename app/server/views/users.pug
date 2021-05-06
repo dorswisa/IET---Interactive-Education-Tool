@@ -1,0 +1,73 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+    .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
+        .page-info(style="text-align: center; ")
+            h1(style="display: inline; margin-right: 1em;") Users
+            if(user.type == 'Admin')
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none;")
+                    i.fas.fa-user-plus
+                    .tooltipp  Create User
+                h6 Drag and drop user to edit/delete/connect.
+                h6 To create new user press on the icon.
+                br
+            else
+                h6 Drag and drop user to connect.
+                br
+
+        ul#list.list
+            .top-table
+                .id-top ID
+                .name-top Full Name
+                .type-top Type
+                .class-top Class
+            each usr in users
+                li.list__item
+                    .drag-me
+                        i.fa.fa-user
+                        .info
+                            .id=usr.id
+                            .name=usr.name
+                            .type=usr.type
+                            if(usr.type == "Pupil")
+                                .class=usr.class
+
+
+
+        #drop-area.drop-area
+            #signto.drop-area__item
+                i.fas.fa-sign-in-alt
+                .tooltipp Connect
+            if(user.type == "Admin")
+                #delete.drop-area__item
+                    i.fa.fa-user-times
+                    .tooltipp(style="left: 12px;")  Delete User
+                #edit.drop-area__item
+                    i.fas.fa-user-edit
+                    .tooltipp(style="left: 20px;") Edit User
+
+
+        .drop-overlay
+    if(user.type == 'Admin')
+        .cd-user-modal
+            // this is the entire modal form, including the background
+            .cd-user-modal-container
+                include modals/edit-user
+                include modals/create-user
+
+
+    include modals/error
+    include modals/delete
+    include modals/connect
+
+    script.
+        $(document).ready(function () {
+            getValue(!{JSON.stringify(users)}, !{JSON.stringify(parents)});
+        });
+
+    script(src='/js/draganddrop/modernizr.custom.js')
+    script(src='/js/draganddrop/draggabilly.pkgd.min.js')
+    script(src='/js/draganddrop/dragdrop.js')
+    script(src='/js/users.js')
