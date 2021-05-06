@@ -1,0 +1,21 @@
+
+#year-modal.modal.fade
+    .modal-dialog
+        .modal-content
+            .modal-header
+                img(src='/css/logo.png' width='50' height='50' alt='logo')
+                button.close(type='button' aria-label='Close' data-dismiss='modal' style='color: #5E798B; outline: none; z-index:99')
+                    span(style='font-size: 40px;') &times;
+                h4(style="position: absolute; width: 100%; text-align:center; font-weight: bold; font-style: italic; font-size:32px;").modal-title#title
+            .modal-body(style='padding-bottom: 0; outline: none;')
+                form(method="post")#year-form
+                    label(style='padding-bottom: 10px; padding-top: 10px')#description
+                    .form-group
+                        input#year.form-control(name='year' placeholder=' ' type='text' required  style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;')
+                        label.input-form(for='year') Year
+                    .form-group
+                        input#start-year(type='checkbox' name='start-year')
+                        label(for='start-year' style="margin-top: 0.2em;") Start new year?
+
+            .modal-footer
+                button#button.btn.btfooter(type='submit' form="year-form")

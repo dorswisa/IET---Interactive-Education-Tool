@@ -1,0 +1,200 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+    .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
+        .page-info(style="text-align: center; ")
+            h1(style="display: inline; margin-right: 1em;") Years
+            if(user.type == 'Admin')
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none;")
+                    i.fa.fa-calendar-plus
+                    .tooltipp  Create Year
+                h6 Drag and drop year to edit/delete.
+                h6 To create new year press on the icon.
+                br
+
+        ul#list.list
+            .top-table
+                .year-top Year
+            each year in years
+                li.list__item
+                    .drag-me
+                        i.fa.fa-calendar
+                        .info
+                            .year=year.name
+
+        #drop-area.drop-area
+            if(user.type == "Admin")
+                #delete.drop-area__item
+                    i.fas.fa-trash-alt
+                    .tooltipp(style="left: 2px; width: 100%;") Delete Year
+                #edit.drop-area__item
+                    i.fa.fa-edit
+                    .tooltipp(style="left: 17px;") Edit Year
+
+        .drop-overlay
+
+    include modals/error
+    include modals/delete
+    include modals/year-modal
+
+    script(src='/js/draganddrop/modernizr.custom.js')
+    script(src='/js/draganddrop/draggabilly.pkgd.min.js')
+    script(src='/js/draganddrop/dragdrop.js')
+
+    script.
+        var yearinfo;
+        jQuery(document).ready(function ($) {
+
+            $('.cd-create').on('click', function () {
+                $('#title').html('Create Year');
+                $('#description').html('Please enter the year.');
+                $('#button').html('Create Year');
+                $('#year-modal').modal('show');
+            });
+
+
+            $('#button').click(function () {
+                if($('#title').text().includes("Edit")) {
+                    $('#year-form').ajaxForm({
+                        type: 'POST',
+                        url: '/edit-year',
+                        data: {"edit": yearinfo[0]},
+                        success: function (responseText, status, xhr, $form) {
+                            if (status == 'success') {
+                                $('#alert-modal-title').html('Edit Successful!');
+                                $('#alert-modal-body').html('The year has been edited.. <br>Refreshing the page.');
+                                $('#year-modal').modal('hide');
+                                $('#alert-modal').modal('show');
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 3000);
+                            }
+                        },
+                        error: function (e) {
+                            $('#alert-modal-title').html('Edit Failure!');
+                            $('#alert-modal-body').html('This information has already been allocated.');
+                            $('#year-modal').modal('hide');
+                            $('#alert-modal').modal('show');
+                        }
+                    });
+                }
+                else
+                {
+                    $('#year-form').ajaxForm({
+                        type: 'POST',
+                        url: '/create-year',
+                        success: function (responseText, status, xhr, $form) {
+                            if (status == 'success') {
+                                $('#alert-modal-title').html('Creation Success!');
+                                $('#alert-modal-body').html('The year has been created. <br>Refreshing the page.');
+                                $('#year-modal').modal('hide');
+                                $('#alert-modal').modal('show');
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 3000);
+                            }
+                        },
+                        error: function (e) {
+                            $('#alert-modal-title').html('Creation Failure!');
+                            $('#alert-modal-body').html('This information has already been allocated.');
+                            $('#year-modal').modal('hide');
+                            $('#alert-modal').modal('show');
+                        }
+                    });
+                }
+            });
+
+            $('#delete-access').click(function () {
+                $('#delete-modal').modal('hide');
+                $.ajax({
+                    url: '/delete-year',
+                    data: yearinfo[0],
+                    type: 'POST',
+                    success: function (data) {
+                        $('#year-modal').modal('hide');
+                        $('#alert-modal-title').html('Delete Successful!');
+                        $('#alert-modal-body').html('This year has been deleted.<br>Refreshing the page.');
+                        $('#alert-modal').modal('show');
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 3000);
+
+                    },
+                    error: function (jqXHR) {
+                        console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+                    }
+                });
+            });
+
+        });
+
+        (function () {
+            var body = document.body,
+                dropArea = document.getElementById('drop-area'),
+                droppableArr = [], dropAreaTimeout;
+
+            // initialize droppables
+            [].slice.call(document.querySelectorAll('#drop-area .drop-area__item')).forEach(function (el) {
+                droppableArr.push(new Droppable(el, {
+                    onDrop: function (instance, draggableEl) {
+                        // show checkmark inside the droppabe element
+                        classie.add(instance.el, 'drop-feedback');
+                        clearTimeout(instance.checkmarkTimeout);
+                        instance.checkmarkTimeout = setTimeout(function () {
+                            classie.remove(instance.el, 'drop-feedback');
+                        }, 800);
+
+                        yearinfo = draggableEl.textContent.trim();
+                        yearinfo = yearinfo.split("\n");
+                        for (let i = 0; i < yearinfo.length; i++) {
+                            yearinfo[i] = yearinfo[i].trimStart();
+                        }
+
+                        if (el.id == "delete") {
+                            $('#delete-modal-title').html('Warning!');
+                            $('#delete-modal-body').html('Are you sure you want to delete this year?.');
+                            $('#delete-modal').modal('show');
+                        } else if (el.id == 'edit') {
+                            document.getElementById("year").value = yearinfo[0];
+                            $('#title').html('Edit Year');
+                            $('#description').html('Please edit the year.');
+                            $('#button').html('Edit Year');
+                            $('#year-modal').modal('show');
+                        }
+                    }
+                }));
+            });
+
+            // initialize draggable(s)
+            [].slice.call(document.querySelectorAll('#list .drag-me')).forEach(function (el) {
+                new Draggable(el, droppableArr, {
+                    draggabilly: {containment: document.body},
+                    onStart: function () {
+                        // add class 'drag-active' to body
+                        classie.add(body, 'drag-active');
+                        // clear timeout: dropAreaTimeout (toggle drop area)
+                        clearTimeout(dropAreaTimeout);
+                        // show dropArea
+                        classie.add(dropArea, 'show');
+                    },
+                    onEnd: function (wasDropped) {
+                        var afterDropFn = function () {
+                            // hide dropArea
+                            classie.remove(dropArea, 'show');
+                            // remove class 'drag-active' from body
+                            classie.remove(body, 'drag-active');
+                        };
+
+                        if (!wasDropped) {
+                            afterDropFn();
+                        } else {
+                            // after some time hide drop area and remove class 'drag-active' from body
+                            clearTimeout(dropAreaTimeout);
+                            dropAreaTimeout = setTimeout(afterDropFn, 400);
+                        }
+                    }
+                });
+            });
+        })();
