@@ -27,6 +27,8 @@ function getValue(data1) {
                 {
                     lessoninfo[i] = lessoninfo[i].trimStart();
                 }
+                var lsn = lessons.find(element => element.year == lessoninfo[0] && element.name == lessoninfo[1] && element.class == lessoninfo[3] && element.start == parseInt(lessoninfo[4].split(" ")[1]) && element.end == parseInt(lessoninfo[4].split(" ")[3]) && element.day == lessoninfo[4].split(" ")[0]);
+                lessoninfo[0] = lsn._id;
 
                 if(el.id == "delete")
                 {
@@ -36,7 +38,7 @@ function getValue(data1) {
                 }
                 else if(el.id == 'edit')
                 {
-                    var lsn = lessons.find(element => element.year == lessoninfo[0] && element.name == lessoninfo[1] && element.class == lessoninfo[3] && element.start == parseInt(lessoninfo[4].split(" ")[1]) && element.end == parseInt(lessoninfo[4].split(" ")[3]) && element.day == lessoninfo[4].split(" ")[0]);
+
                     document.getElementById("edit-year").value = lsn.year;
                     document.getElementById("edit-name").value = lsn.name;
                     document.getElementById("edit-teacher").value = lsn.teacher;
@@ -48,7 +50,6 @@ function getValue(data1) {
                     $('.cd-user-modal').addClass('is-visible');
                     $('.cd-user-modal').find('#cd-edit').addClass('is-selected');
                     $('.cd-user-modal').find('#cd-create').removeClass('is-selected');
-                    lessoninfo[0] = lsn._id;
                 }
             }
         } ) );
@@ -188,15 +189,15 @@ jQuery(document).ready(function($){
         });
     });
 
-    $('#delete-lesson').click(function(){
+    $('#delete-access').click(function(){
         $('#delete-modal').modal('hide');
         $.ajax({
-            url: '/delete-user',
-            data: userinfo[0],
+            url: '/delete-lesson',
+            data: lessoninfo[0],
             type: 'POST',
             success: function(data){
                 $('#alert-modal-title').html('Delete Successful!');
-                $('#alert-modal-body').html('This account has been deleted.<br>Refreshing the page.');
+                $('#alert-modal-body').html('This lesson has been deleted.<br>Refreshing the page.');
                 $('#alert-modal').modal('show');
                 setTimeout(function(){window.location.reload();}, 3000);
 
