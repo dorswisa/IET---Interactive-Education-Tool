@@ -52,7 +52,7 @@ before(function(done) {
 
     setTimeout(function(){
         done();
-    }, 1500)
+    }, 1200)
 
 });
 
