@@ -25,5 +25,17 @@ pipeline {
                 echo 'Finished Tests'
             }
         }
+        stage('Code Coverage') {
+            agent {
+                docker {
+                    image 'node:10-alpine'
+                    args '-p 3000:3000'
+                }
+            }
+            steps {
+                sh 'npm run coverage'
+                echo 'Finished Code Coverage'
+            }
+        }
     }
 }
