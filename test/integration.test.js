@@ -9,7 +9,7 @@ const request = require('supertest');
 
 var app = express();
 
-before(function() {
+before(function(done) {
 
     app.locals.pretty = true;
     app.set('port', process.env.PORT || 3010);
@@ -49,12 +49,19 @@ before(function() {
     http.createServer(app).listen(app.get('port'), function () {
         console.log('Express server listening on port ' + app.get('port'));
     });
+
+    setTimeout(function(){
+        done();
+    }, 1000)
+
 });
 
 var agent = request.agent(app);
 
+
 describe('The admin connect to his user and tries to create a new parent user', function() {
     it('Should response code 200 (The information is in the database - admin will login to system)', function(done) {
+
         agent
             .post('/login')
             .set('Accept', 'application/json')

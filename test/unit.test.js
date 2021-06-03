@@ -49,6 +49,7 @@ before(function() {
     http.createServer(app).listen(app.get('port'), function () {
         console.log('Express server listening on port ' + app.get('port'));
     });
+
 });
 
 describe('Try to route "/" (Login page)', function() {
@@ -60,8 +61,8 @@ describe('Try to route "/" (Login page)', function() {
             .end(function(err, res){
                     if (err) return done(err);
                     done();
-                });
             });
+    });
 });
 
 describe('Try to route "/home" (Home page)', function() {
