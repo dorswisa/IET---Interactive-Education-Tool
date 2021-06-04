@@ -2,7 +2,7 @@
 const crypto 		= require('crypto');
 const MongoClient 	= require('mongodb').MongoClient;
 
-var db, users,years, lessons;
+var db, users,years, lessons, contents;
 MongoClient.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true }, function(e, client) {
 	if (e){
 		console.log(e);
@@ -10,7 +10,8 @@ MongoClient.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlPar
 		db = client.db(process.env.DB_NAME);
 		users = db.collection('Users');
 		years = db.collection('Years');
-		lessons = db.collection('Lessons')
+		lessons = db.collection('Lessons');
+		contents = db.collection("Contents");
 		// index fields 'user' & 'email' for faster new account validation //
 		users.createIndex({user: 1, email: 1});
 		console.log('mongo :: connected to database :: "'+process.env.DB_NAME+'"');
@@ -280,6 +281,15 @@ exports.getAllLessons = function(callback)
 		});
 }
 
+exports.getAllContents = function(callback)
+{
+	contents.find().toArray(
+		function(e, res) {
+			if (e) callback(e)
+			else callback(null, res);
+		});
+}
+
 
 exports.deleteAccount = function(id, callback)			// if we want to delete one user
 {
@@ -439,10 +449,10 @@ exports.CreateNewLesson = function(newData, callback)
 						{
 							$and: [
 								{
-									start: {$gte: newData.start}
+									start: { $gte: newData.start }
 								},
 								{
-									start: {$lt: newData.end}
+									start: { $lt: newData.end }
 								}
 							]
 						}
@@ -482,10 +492,10 @@ exports.CreateNewLesson = function(newData, callback)
 								{
 									$and: [
 										{
-											start: {$gte: newData.start}
+											start: { $gte: newData.start }
 										},
 										{
-											start: {$lt: newData.end}
+											start: { $lt: newData.end }
 										}
 									]
 								}
@@ -499,6 +509,7 @@ exports.CreateNewLesson = function(newData, callback)
 					callback('times-conflict');
 				}
 				else {
+					newData["contents"] = [];
 					lessons.insertOne(newData, function(err,docsInserted){
 						users.find({type: "Pupil", class: newData.class}).toArray(function(e, res) {
 							for(var i = 0; i<res.length; i++)
@@ -535,6 +546,9 @@ exports.EditLesson = function(id,newData, callback)
 	lessons.findOne({
 			$and : [
 				{
+					_id : { $ne : getObjectId(id)}
+				},
+				{
 					year: newData.year
 				},
 				{
@@ -558,10 +572,10 @@ exports.EditLesson = function(id,newData, callback)
 						{
 							$and: [
 								{
-									start: {$gte: newData.start}
+									start: { $gte: newData.start }
 								},
 								{
-									start: {$lt: newData.end}
+									start: { $lt: newData.end }
 								}
 							]
 						}
@@ -571,15 +585,15 @@ exports.EditLesson = function(id,newData, callback)
 		},
 		function(e, o) {
 			if (o && !(o._id.equals(getObjectId(id)))){
-				console.log(getObjectId(id))
-				console.log(o._id);
-				console.log(o._id.equals(getObjectId("609284eec998d65024a9587c")))
 				console.log("Two lessons in same time!");
 				callback('times-conflict');
 			}
 			else {
 				lessons.findOne({
 					$and : [
+						{
+							_id : { $ne : getObjectId(id)}
+						},
 						{
 							year: newData.year
 						},
@@ -653,12 +667,160 @@ exports.deleteLesson = function(id, callback)			// if we want to delete one less
 	lessons.deleteOne({_id: getObjectId(id)}, callback);
 }
 
-
-
 exports.deleteYear = function(name, callback)			// if we want to delete one year
 {
 	console.log("The year has been deleted!");
 	years.deleteOne({name: name}, callback);
+}
+
+exports.CreateNewContent = function(newData, lsnid, callback)
+{
+	console.log(newData);
+	var content = {};
+	var questions = {};
+	var answers = {};
+	var types = {};
+	var index = 1;
+	for (var key in newData.questions) {
+		if(newData.questions[key].length > 1)
+		{
+			var check = 0;
+			var ans = [];
+			for(var i=1, j=0; i<newData.questions[key].length; i++, j++)
+			{
+				ans[j] = [];
+				ans[j][0] = newData.questions[key][i];
+				if(newData.questions[key][i+1] != undefined && newData.questions[key][i+1] == 'on')
+				{
+					check++;
+					ans[j][1] = true;
+					i++;
+				}
+				else
+				{
+					ans[j][1] = false;
+				}
+			}
+			if(check == 0)
+			{
+				callback("no-correct-answer");
+			}
+			questions[index] = newData.questions[key][0];
+			answers[index] = ans;
+			types[index++] = check > 1 ?  "Checkbox" : "Radio";
+		}
+		else
+		{
+			questions[index] = newData.questions[key][0];
+			types[index++] = "Open";
+		}
+	}
+	if(newData.type != "Meeting")
+	{
+		content["questions"] = questions;
+		content["anstypes"] = types;
+		content["answers"] = answers;
+	}
+	content["description"] = newData.description;
+	content["start"] = newData.start;
+	content["end"] = newData.end;
+	content["link"] = newData.meeting;
+	content["type"] = newData.type;
+	contents.insertOne(content, function(err,docsInserted){
+		lessons.findOne({_id:getObjectId(lsnid)}, function(e, o) {
+			if (o) {
+				lessons.find({teacher: o.teacher, class: o.class, year: o.year, name: o.name}).toArray(function(e, res) {
+					for(var i = 0; i<res.length; i++)
+					{
+						if(res[i].contents == undefined)
+						{
+							res[i].contents = [];
+						}
+						res[i].contents.push(getObjectId(docsInserted.ops[0]._id));
+						lessons.findOneAndUpdate({_id: getObjectId(res[i]._id)}, {$set: res[i]}, {returnOriginal: false});
+					}
+				});
+			}
+			else{
+				callback(e);
+			}
+		});
+		callback(null);
+		console.log("Content " + newData.description + " has been created in database!");
+	});
+}
+
+exports.CreatePupilContent = function(newData, userid, callback)
+{
+	var contentid = newData.contentid;
+	delete newData.contentid;
+	contents.findOne({_id:getObjectId(contentid)}, function(e, o) {
+		if (o) {
+			if(o.users == undefined)
+			{
+				o.users = {};
+			}
+			o.users[userid.toString()] = newData;
+			contents.findOneAndUpdate({_id:getObjectId(contentid)}, {$set: o}, {returnOriginal: false});
+			users.findOne({id:userid}, function(e, o) {
+				if (o) {
+					if(o.contents == undefined)
+					{
+						o.contents = [];
+					}
+					o.contents.push(contentid);
+					users.findOneAndUpdate({id:userid}, {$set: o}, {returnOriginal: false});
+				}
+				else {
+					callback('not-found');
+				}
+			});
+			callback(null);
+		}
+		else {
+			callback('not-found');
+		}
+	});
+	console.log("Pupil content has been submitted in database!");
+
+}
+
+exports.AddGrade = function(grade, ctnid, userid, callback)
+{
+	contents.findOne({_id:getObjectId(ctnid)}, function(e, o) {
+		if (o) {
+			o.users[userid].grade = grade;
+			contents.findOneAndUpdate({_id:getObjectId(ctnid)}, {$set: o}, {returnOriginal: false});
+		}
+		else {
+			callback('not-found');
+		}
+	});
+	console.log("Pupil content has been submitted in database!");
+	callback(null);
+}
+
+exports.deleteContent = function(id, callback)			// if we want to delete one lesson
+{
+	lessons.find().toArray(function(e, res) {
+		for(var i = 0; i<res.length; i++)
+		{
+			if(res[i].contents != undefined)
+			{
+				for(var j=0; j<res[i].contents.length; j++)
+				{
+					if(res[i].contents[j].equals(getObjectId(id)))
+					{
+						res[i].contents.splice(j, 1);
+						lessons.findOneAndUpdate({_id: getObjectId(res[i]._id)}, {$set: res[i]}, {returnOriginal: false});
+						break;
+					}
+				}
+			}
+		}
+	});
+	console.log("The content has been deleted!");
+	contents.deleteOne({_id: getObjectId(id)}, callback);
 }
 
 /*exports.deleteAllAccounts = function(callback)					// if we want to restart the database
