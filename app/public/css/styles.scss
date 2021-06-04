@@ -895,6 +895,24 @@ input[type=number] {
   }
 }
 
+.add-que:hover {
+  .tooltipp {
+    visibility: visible;
+  }
+}
+
+.add-que {
+  .tooltipp {
+    margin-top: -10px;
+    margin-right: 5px;
+    top: 2px;
+    width: 100px;
+    color: #5E798B;
+    font-size: 0.4em;
+    visibility: hidden;
+  }
+}
+
 .drop-area.show .drop-area__item.highlight {
   color: #fff;
   -webkit-transition: none;
@@ -1037,6 +1055,15 @@ input[type=number] {
     width: 10%;
     *display: inline;
   }
+  //lesson page {
+  .description-top {
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    width: 48%;
+    *display: inline;
+  }
+  //   }
 
   .id-top {
     left: 10%;
@@ -1121,6 +1148,32 @@ input[type=number] {
     width: 25%;
   }
 
+  //lesson page {
+  .No{
+    width: 6%;
+    margin-left: 5%;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    *display: inline;
+  }
+
+  .lesson-lesson {
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    width: 60%;
+  }
+
+  .lesson-date {
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    width: 25%;
+  }
+  // }
 
   .id {
     left: 5%;
@@ -1173,4 +1226,148 @@ input[type=number] {
   z-index: 2 !important;
 }
 
+.schedule-stage {
+  display: grid;
+  overflow: scroll;
+  grid-auto-columns: max-content;
+  grid-auto-flow: column;
+  grid-gap: 1rem;
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+  min-width: 50vw;
+  padding-right: 20vw;
+}
 
+.divider {
+  position: sticky;
+  left: 0;
+  border: none;
+  border-bottom: 2px solid #5E798B;
+}
+
+.schedule-stage .schedule-stage__title > h3 {
+  color: #5E798B;
+  background: linear-gradient(to right, #e0eaef, rgba(255,255,255,0.7) 100%);
+}
+
+.schedule-stage__title {
+  position: sticky;
+  left: 0;
+  padding-right: 2rem;
+  height: 100%;
+  background: linear-gradient(to right, #e0eaef, hsla(0, 0%, 0%, 0) 50%);
+  & > h3 {
+    font-weight: 900;
+  }
+}
+
+.schedule-stage_guide-container {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 280px;
+  grid-gap: 2rem;
+}
+
+.guide-slot {
+  color: #a4b9c4;;
+  & > p {
+    margin-bottom: 1rem;
+  }
+}
+
+.guide-slot_card {
+  background-color: rgba(255,255,255,0.7); /* Black w/opacity/see-through */
+  font-weight: bold;
+  border: 2px solid #5E798B;
+  border-radius: 0.8rem;
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #93b1c5;
+  }
+
+  & > h4 {
+    margin-right: 5rem;
+    font-size: 2rem;
+    color: #5E798B;
+  }
+
+  & > figcaption {
+    color: #a4b9c4;
+  }
+}
+
+.que-icons {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 46%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size:1.5em;
+  color: #93b1c5;
+   background-color: transparent;
+  outline: none;
+  float: right;
+}
+
+.answers {
+
+  [type="checkbox"]{
+    content: url('blank-check-box.png');
+    display: block;
+    outline: none;
+    padding: 5px;
+    float: left;
+    height: 35px;
+    width: 35px;
+    margin-top: 3px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  [type="checkbox"]:checked {
+    display: block;
+    content: url('check-box.png');
+    outline: none;
+    padding: 5px;
+    float: left;
+    height: 35px;
+    width: 35px;
+    margin-top: 3px;
+  }
+
+  [type="radio"]{
+    content: url('circle.png');
+    display: block;
+    outline: none;
+    padding: 5px;
+    float: left;
+    height: 35px;
+    width: 35px;
+    margin-top: 3px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  [type="radio"]:checked {
+    display: block;
+    content: url('tick-inside-circle.png');
+    outline: none;
+    padding: 5px;
+    float: left;
+    height: 35px;
+    width: 35px;
+    margin-top: 3px;
+  }
+
+}
