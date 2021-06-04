@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var MongoStore = require('connect-mongo')(session);
 const request = require('supertest');
-
+var lessons, contents, years, users;
 
 var app = express();
 
@@ -49,11 +49,10 @@ before(function(done) {
     http.createServer(app).listen(app.get('port'), function () {
         console.log('Express server listening on port ' + app.get('port'));
     });
-
+    this.timeout(3000);
     setTimeout(function(){
         done();
     }, 1300)
-
 });
 
 var agent = request.agent(app);
