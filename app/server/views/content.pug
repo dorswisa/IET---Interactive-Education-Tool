@@ -1,0 +1,80 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+
+    include navbar
+
+    - if(user.type == "Pupil" || content.type == "Meeting")
+        - var date = new Date(content.end)
+        - var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2) + ", " + Math.floor(date.getHours() / 10) + date.getHours() % 10 + ":" + Math.floor(date.getMinutes() / 10) + date.getMinutes() % 10
+        if(content.end == "")
+            - date = "- -"
+        h3(style="position: relative;margin-top: 3.5em; float: right; margin-right: 13%")="Deadline for submission: " + date
+        .content-former(style="width: 80%; position: relative; left: 10%; margin-top: 2em; margin-bottom: 5em; z-index: 2; overflow: hidden;}")
+            h1(style="display: table; margin-right: 1em; margin: 0 auto; ")=content.type + " - " + content.description
+            br
+            h4(style="margin-right: 1em;")="Link: "
+                a(href=content.link style="text-decoration: none;" target="_blank")=content.link
+            hr.divider
+            if(content.type != "Meeting")
+                form#questionform.questions
+                    - for(var quekey in content.questions)
+                        .question(style="padding: 20px")
+                            h3(style="indent-text: 5em")=quekey + ") " + content.questions[quekey]
+                            .answers(style="padding: 20px 0px 0px 40px")
+                                - if(content.anstypes[quekey] == "Checkbox")
+                                    - for(var i = 0; i<content.answers[quekey].length; i++)
+                                        input(type='checkbox' name=quekey+"["+i+" ]" id="q"+quekey+"a"+i)
+                                        label(for="q"+quekey+"a"+i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                        br
+                                        br
+                                - else if(content.anstypes[quekey] == "Radio")
+                                    - for(var i = 0; i<content.answers[quekey].length; i++)
+                                        input(type='radio' name=quekey id="q" + quekey+"a"+i value=i)
+                                        label(for="q" + quekey+"a"+i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                        br
+                                        br
+                                - else
+                                    .form-group
+                                        textarea.form-control(name=quekey id="q" + quekey+"a"+i rows="7" placeholder=' ' style='margin-top: 0.8em; box-shadow: none;border-radius:0px; background-color: transparent; outline: none; height: 150px; width: 80%; font-size: 22px; border-bottom: 2px solid grey !important;')
+                                        label.input-form(for=quekey style="font-size: 22px;") Your answer..
+                        hr.divider
+                button.btn.btfooter#sendform(type="button" style="width: 30%; margin: 0 auto; display: table; margin-top: 5em;") Submit
+
+
+
+    include modals/connect
+    include modals/error
+
+    script.
+        jQuery(document).ready(function ($) {
+
+            $('#sendform').click(function(){
+                $('#connect-modal-title').html('Pay attention!');
+                $('#connect-modal-body').html('Are you sure you want to submit this form?.');
+                $('#connect-access').html('Submit');
+                document.getElementById("connect-access").setAttribute("form","questionform");
+                $('#connect-modal').modal('show');
+            });
+
+            $('#connect-access').click(function () {
+                $('#connect-modal').modal('hide');
+                $('#questionform').ajaxForm({
+                    data: {contentid: !{JSON.stringify(content._id)}},
+                    url: '/user-send-content',
+                    type: 'POST',
+                    success: function (data) {
+                        $('#alert-modal-title').html('Submission Success!');
+                        $('#alert-modal-body').html('Redirecting to the home page.');
+                        $('#alert-modal').modal('show');
+                        setTimeout(function () {
+                            window.location.href = '/';
+                        }, 2000);
+                    },
+                    error: function (jqXHR) {
+                        console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+                    }
+                });
+            });
+        });
