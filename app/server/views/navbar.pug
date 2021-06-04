@@ -4,22 +4,6 @@
             img(src='/css/logo.png' width='55' height='45' alt='logo' style="left: 25px;position: absolute;")
             h1 IET
             h8 Interactive Education Tool
-    .search_box
-        .dropdown1#dropdown-year(data-control='checkbox-dropdown' )
-            label.dropdown1-label Year
-            ul.dropdown1-list
-                label.dropdown1-option
-                    input(type='radio' name='dropdown1-group1' value='2020-a')
-                    |                         2020-A
-                label.dropdown1-option
-                    input(type='radio' name='dropdown1-group1' value='2020-B')
-                    |                         2020-B
-                label.dropdown1-option
-                    input(type='radio' name='dropdown1-group1' value='2021-A')
-                    |                         2021-A
-                label.dropdown1-option
-                    input(type='radio' name='dropdown1-group1' value='2021-B')
-                    |                         2021-B
 
 input#openSidebarMenu.openSidebarMenu(type='checkbox')
 label.sidebarIconToggle(for='openSidebarMenu')
@@ -34,7 +18,7 @@ label.sidebarIconToggle(for='openSidebarMenu')
             li
                 a(href='/lessons' ) Lessons
             li
-                a(href='/calender' ) Calender
+                a(href='/schedule' ) Schedule
             li
                 a(href='/grades' ) Grades
             li
@@ -45,7 +29,7 @@ label.sidebarIconToggle(for='openSidebarMenu')
             li
                 a(href='/users' ) Users
             li
-                a(href='/calender' ) Calender
+                a(href='/schedule' ) Schedule
             li
                 a(href='/contact') Contact
         else if(user !== undefined && user.type == "Teacher")
@@ -66,4 +50,3 @@ label.sidebarIconToggle(for='openSidebarMenu')
                 li(style='width: 195px; overflow-x: hidden;')
                     a(href='/my-user' style='width: 195px; overflow-x: hidden;')=user.name
 
-script(src='/js/home.js')

@@ -7,7 +7,7 @@ block content
         .page-info(style="text-align: center; ")
             h1(style="display: inline; margin-right: 1em;") Users
             if(user.type == 'Admin')
-                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none;")
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none; cursor: pointer;")
                     i.fas.fa-user-plus
                     .tooltipp  Create User
                 h6 Drag and drop user to edit/delete/connect.
@@ -50,12 +50,12 @@ block content
 
 
         .drop-overlay
-    if(user.type == 'Admin')
-        .cd-user-modal
-            // this is the entire modal form, including the background
-            .cd-user-modal-container
-                include modals/edit-user
-                include modals/create-user
+
+    .cd-user-modal
+        // this is the entire modal form, including the background
+        .cd-user-modal-container
+            include modals/edit-user
+            include modals/create-user
 
 
     include modals/error

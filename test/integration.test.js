@@ -5,11 +5,11 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var MongoStore = require('connect-mongo')(session);
 const request = require('supertest');
-
+var lessons, contents, years, users;
 
 var app = express();
 
-before(function() {
+before(function(done) {
 
     app.locals.pretty = true;
     app.set('port', process.env.PORT || 3010);
@@ -28,10 +28,10 @@ before(function() {
     process.env.DB_NAME = process.env.DB_NAME || 'IET';
 
     if (app.get('env') != 'live') {
-        process.env.DB_URL = 'mongodb://' + process.env.DB_HOST + ':' + process.env.DB_PORT;
+        process.env.DB_URL = 'mongodb+srv://IETUSER:7E9ihaU9RurNZsL6@cluster0.gitpd.mongodb.net';
     } else {
 // prepend url with authentication credentials //
-        process.env.DB_URL = 'mongodb://' + process.env.DB_USER + ':' + process.env.DB_PASS + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT;
+        process.env.DB_URL = 'mongodb+srv://IETUSER:7E9ihaU9RurNZsL6@cluster0.gitpd.mongodb.net';
     }
 
     app.use(session({
@@ -49,12 +49,18 @@ before(function() {
     http.createServer(app).listen(app.get('port'), function () {
         console.log('Express server listening on port ' + app.get('port'));
     });
+    this.timeout(3000);
+    setTimeout(function(){
+        done();
+    }, 1300)
 });
 
 var agent = request.agent(app);
 
+
 describe('The admin connect to his user and tries to create a new parent user', function() {
     it('Should response code 200 (The information is in the database - admin will login to system)', function(done) {
+
         agent
             .post('/login')
             .set('Accept', 'application/json')

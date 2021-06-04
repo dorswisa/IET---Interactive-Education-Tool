@@ -1,0 +1,268 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+
+    include navbar
+
+    - if(user.type == "Pupil" || content.type == "Meeting")
+        - var date = new Date(content.end)
+        - var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2) + ", " + Math.floor(date.getHours() / 10) + date.getHours() % 10 + ":" + Math.floor(date.getMinutes() / 10) + date.getMinutes() % 10
+        if(content.end == "")
+            - date = "- -"
+        h3(style="position: relative;margin-top: 3.5em; float: right; margin-right: 13%")="Deadline for submission: " + date
+        .content-former(style="width: 80%; position: relative; left: 10%; margin-top: 2em; margin-bottom: 5em; z-index: 2; overflow: hidden;}")
+            h1(style="display: table; margin-right: 1em; margin: 0 auto; ")=content.type + " - " + content.description
+            br
+            h4(style="margin-right: 1em;")="Link: "
+                a(href=content.link style="text-decoration: none;" target="_blank")=content.link
+            hr.divider
+            if(content.type != "Meeting")
+                form#questionform.questions
+                    - for(var quekey in content.questions)
+                        .question(style="padding: 20px")
+                            h3(style="indent-text: 5em")=quekey + ") " + content.questions[quekey]
+                            .answers(style="padding: 20px 0px 0px 40px")
+                                - if(content.anstypes[quekey] == "Checkbox")
+                                    - for(var i = 0; i<content.answers[quekey].length; i++)
+                                        input(type='checkbox' name=quekey+"["+i+" ]" id="q"+quekey+"a"+i)
+                                        label(for="q"+quekey+"a"+i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                        br
+                                        br
+                                - else if(content.anstypes[quekey] == "Radio")
+                                    - for(var i = 0; i<content.answers[quekey].length; i++)
+                                        input(type='radio' name=quekey id="q" + quekey+"a"+i value=i)
+                                        label(for="q" + quekey+"a"+i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                        br
+                                        br
+                                - else
+                                    .form-group
+                                        textarea.form-control(name=quekey id="q" + quekey+"a"+i rows="7" placeholder=' ' style='margin-top: 0.8em; box-shadow: none;border-radius:0px; background-color: transparent; outline: none; height: 150px; width: 80%; font-size: 22px; border-bottom: 2px solid grey !important;')
+                                        label.input-form(for=quekey style="font-size: 22px;") Your answer..
+                        hr.divider
+                button.btn.btfooter#sendform(type="button" style="width: 30%; margin: 0 auto; display: table; margin-top: 5em;") Submit
+
+    - else
+
+        - var lesson = lessons.find(value => value.contents.map(String).includes(content._id.toString()));
+        - var pupils = users.filter(value => value.lessons != undefined && value.type != "Teacher" && value.lessons.map(String).includes(lesson._id.toString()));
+
+        .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
+            .page-info(style="text-align: center;  margin-bottom:2em;")
+                h1(style="display: inline; margin-right: 1em;")= content.type + " - " + content.description
+
+            ul#list.list
+                .top-table
+                    .description-top(style="width: 40%") ID
+                    .date-top(style="width: 20%") Name
+                    .year-top(style="width: 16%") Grade
+                each pup in pupils
+                    - var grade = " - ";
+                    if(content.users !== undefined && content.users[pup.id] !== undefined)
+                        - grade = content.users !== undefined ? content.users[pup.id] : undefined;
+                        - grade.grade !== undefined ? grade = grade.grade : grade = " - ";
+                    li.list__item
+                        .drag-me
+                            i.fas.fa-list-alt
+                            .info
+                                .lesson-lesson(style="width: 35%")=pup.id
+                                .lesson-date(style="width: 35%")=pup.name
+                                .No(style="width: 16%; margin-left:0;")=grade
+
+            #drop-area.drop-area
+                #give-grade.drop-area__item
+                    i.fas.fa-pen-alt
+                    .tooltipp Give Grade
+
+            .drop-overlay
+
+        .cd-user-modal(style="z-index: 10;")
+            // this is the entire modal form, including the background
+            .cd-user-modal-container(style="max-width: 60%; margin-bottom: 10em !important; ")
+                include modals/grading-content
+
+
+
+
+    include modals/connect
+    include modals/error
+
+
+    script(src='/js/draganddrop/modernizr.custom.js')
+    script(src='/js/draganddrop/draggabilly.pkgd.min.js')
+    script(src='/js/draganddrop/dragdrop.js')
+
+    script.
+        var pupid = [];
+
+        (function () {
+            var body = document.body,
+                dropArea = document.getElementById('drop-area'),
+                droppableArr = [], dropAreaTimeout;
+
+            // initialize droppables
+            [].slice.call(document.querySelectorAll('#drop-area .drop-area__item')).forEach(function (el) {
+                droppableArr.push(new Droppable(el, {
+                    onDrop: function (instance, draggableEl) {
+                        // show checkmark inside the droppabe element
+                        classie.add(instance.el, 'drop-feedback');
+                        clearTimeout(instance.checkmarkTimeout);
+                        instance.checkmarkTimeout = setTimeout(function () {
+                            classie.remove(instance.el, 'drop-feedback');
+                        }, 800);
+
+                        pupid = draggableEl.textContent.trim();
+                        pupid = pupid.split("\n");
+                        for (let i = 0; i < pupid.length; i++) {
+                            pupid[i] = pupid[i].trimStart();
+                        }
+
+                        if (el.id == 'give-grade') {
+                            var content = !{JSON.stringify(content)};
+                            if(content.users !== undefined && content.users[pupid[0]] !== undefined)
+                            {
+                                var answersobj = content.users[pupid[0]];
+                                for(var quekey in content.questions)
+                                {
+                                    if(answersobj[quekey] != undefined)
+                                    {
+                                        if (content.anstypes[quekey] == "Open")
+                                        {
+                                            document.getElementById(quekey).value = answersobj[quekey];
+                                        }
+                                        else if (content.anstypes[quekey] == "Radio")
+                                        {
+                                            document.getElementById("q" + quekey + "a" + answersobj[quekey]).setAttribute("checked", true);
+                                        }
+                                        else
+                                        {
+                                            for(var anskey in answersobj[quekey])
+                                            {
+                                                document.getElementById("q" + quekey.toString() + "a" + anskey.slice(0,-1)).setAttribute("checked", true);
+                                            }
+                                        }
+                                    }
+                                }
+                                $('.cd-user-modal').addClass('is-visible');
+                                $('.cd-user-modal').find('#grade-content').addClass('is-selected');
+                            }
+                            else
+                            {
+                                $('#alert-modal-title').html('Failure!');
+                                $('#alert-modal-body').html('The pupil did not answered the questions yet.');
+                                $('#alert-modal').modal('show');
+                            }
+                        }
+                    }
+                }));
+            });
+
+            // initialize draggable(s)
+            [].slice.call(document.querySelectorAll('#list .drag-me')).forEach(function (el) {
+                new Draggable(el, droppableArr, {
+                    draggabilly: {containment: document.body},
+                    onStart: function () {
+                        // add class 'drag-active' to body
+                        classie.add(body, 'drag-active');
+                        // clear timeout: dropAreaTimeout (toggle drop area)
+                        clearTimeout(dropAreaTimeout);
+                        // show dropArea
+                        classie.add(dropArea, 'show');
+                    },
+                    onEnd: function (wasDropped) {
+                        var afterDropFn = function () {
+                            // hide dropArea
+                            classie.remove(dropArea, 'show');
+                            // remove class 'drag-active' from body
+                            classie.remove(body, 'drag-active');
+                        };
+
+                        if (!wasDropped) {
+                            afterDropFn();
+                        } else {
+                            // after some time hide drop area and remove class 'drag-active' from body
+                            clearTimeout(dropAreaTimeout);
+                            dropAreaTimeout = setTimeout(afterDropFn, 400);
+                        }
+                    }
+                });
+            });
+        })();
+
+        jQuery(document).ready(function ($) {
+
+            var $form_modal = $('.cd-user-modal'),
+                $form_create = $form_modal.find('#grade-content');
+
+
+            //close modal
+            $('.cd-close-form').on('click', function (event) {
+                $form_modal.removeClass('is-visible');
+            });
+
+            //close modal when clicking the esc keyboard button
+            $(document).keyup(function (event) {
+                if (event.which == '27') {
+                    $form_modal.removeClass('is-visible');
+                }
+            });
+
+            function create_selected() {
+                $form_modal.addClass('is-visible');
+                $form_create.addClass('is-selected');
+            }
+
+    script.
+        jQuery(document).ready(function ($) {
+
+            $('#sendform').click(function(){
+                $('#connect-modal-title').html('Pay attention!');
+                $('#connect-modal-body').html('Are you sure you want to submit this form?.');
+                $('#connect-access').html('Submit');
+                document.getElementById("connect-access").setAttribute("form","questionform");
+                $('#connect-modal').modal('show');
+            });
+
+            $('#connect-access').click(function () {
+                $('#connect-modal').modal('hide');
+                $('#questionform').ajaxForm({
+                    data: {contentid: !{JSON.stringify(content._id)}},
+                    url: '/user-send-content',
+                    type: 'POST',
+                    success: function (data) {
+                        $('#alert-modal-title').html('Submission Success!');
+                        $('#alert-modal-body').html('Redirecting to the home page.');
+                        $('#alert-modal').modal('show');
+                        setTimeout(function () {
+                            window.location.href = '/';
+                        }, 2000);
+                    },
+                    error: function (jqXHR) {
+                        console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+                    }
+                });
+            });
+            
+            $('#submit').click(function () {
+                $('#grade-content').ajaxForm({
+                    type: 'POST',
+                    data: {contentid: !{JSON.stringify(content._id)}, userid: pupid[0]},
+                    url: '/add-grade',
+                    success: function (responseText, status, xhr, $form) {
+                        if (status == 'success') {
+                            $('#alert-modal-title').html('Success!');
+                            $('#alert-modal-body').html('The grade has been added. <br>Refreshing the page.');
+                            $('#alert-modal').modal('show');
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 3000);
+                        }
+                    },
+                    error: function (e) {
+                        $('#alert-modal-title').html('Failure!');
+                        $('#alert-modal-body').html('There is a problem with the information you entered.');
+                        $('#alert-modal').modal('show');
+                    }
+                });
+            });
+        });

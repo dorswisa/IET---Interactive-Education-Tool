@@ -1,7 +1,10 @@
-var lessons, lessoninfo;
+var lesson, contentinfo;
 function getValue(data1) {
-    lessons = data1;
+    lesson = data1;
 }
+
+var Elecounter = 0;
+var Anscounter = 0;
 
 (function() {
     var body = document.body,
@@ -19,39 +22,24 @@ function getValue(data1) {
                     classie.remove( instance.el, 'drop-feedback' );
                 }, 800 );
 
-                lessoninfo = draggableEl.textContent.trim();
-                lessoninfo = lessoninfo.split("\n");
-                for(let i=0; i<lessoninfo.length; i++)
+                contentinfo = draggableEl.textContent.trim();
+                contentinfo = contentinfo.split("\n");
+                for(let i=0; i<contentinfo.length; i++)
                 {
-                    lessoninfo[i] = lessoninfo[i].trimStart();
+                    contentinfo[i] = contentinfo[i].trimStart();
                 }
-                var lsn = lessons.find(element => element.year == lessoninfo[0] && element.name == lessoninfo[1] && element.class == lessoninfo[3] && element.start == parseInt(lessoninfo[4].split(" ")[1]) && element.end == parseInt(lessoninfo[4].split(" ")[3]) && element.day == lessoninfo[4].split(" ")[0]);
-                lessoninfo[0] = lsn._id;
+
+                contentinfo = lesson.contents[parseInt(contentinfo[0]) - 1];
 
                 if(el.id == "delete")
                 {
                     $('#delete-modal-title').html('Warning!');
-                    $('#delete-modal-body').html('Are you sure you want to delete this lesson?.');
+                    $('#delete-modal-body').html('Are you sure you want to delete this content?.');
                     $('#delete-modal').modal('show');
-                }
-                else if(el.id == 'edit')
-                {
-
-                    document.getElementById("edit-year").value = lsn.year;
-                    document.getElementById("edit-name").value = lsn.name;
-                    document.getElementById("edit-teacher").value = lsn.teacher;
-                    document.getElementById("edit-class").value = lsn.class;
-                    document.getElementById("edit-day").value = lsn.day;
-                    document.getElementById("edit-start").value = lsn.start < 10 ? "0" + lsn.start + ":00" : lsn.start + ":00";
-                    document.getElementById("edit-end").value = lsn.end + ":00";
-
-                    $('.cd-user-modal').addClass('is-visible');
-                    $('.cd-user-modal').find('#cd-edit').addClass('is-selected');
-                    $('.cd-user-modal').find('#cd-create').removeClass('is-selected');
                 }
                 else if(el.id == 'step-in')
                 {
-                    window.location.href = '/lesson/?id='+ lsn._id;
+                    window.location.href = '/content/?id='+contentinfo;
                 }
             }
         } ) );
@@ -92,17 +80,7 @@ function getValue(data1) {
 
 jQuery(document).ready(function($){
 
-    $('#create-start , #create-end, #edit-start, #edit-end').timepicker({
-        timeFormat: 'HH:mm',
-        interval: 60,
-        dropdown: true,
-        scrollbar: true,
-        minHour: 8,
-        maxHour: 20
-    });
-
     var $form_modal = $('.cd-user-modal'),
-        $form_edit = $form_modal.find('#cd-edit'),
         $form_create = $form_modal.find('#cd-create');
 
     $('.cd-create').on('click', function(){
@@ -125,16 +103,16 @@ jQuery(document).ready(function($){
 
     function create_selected(){
         $form_modal.addClass('is-visible');
-        $form_edit.removeClass('is-selected');
         $form_create.addClass('is-selected');
     }
 
 
     $('#cd-create').ajaxForm({
         type: 'POST',
-        url: '/create-lesson',
+        data: {lesson: lesson._id},
+        url: '/create-content',
         beforeSubmit: function() {
-            if(document.getElementById("create-start").value >= document.getElementById("create-end").value)
+            if((document.getElementById("date-end").value != '') && (document.getElementById("date-start").value >= document.getElementById("date-end").value))
             {
                 $('#alert-modal-title').html('Creation Failure!');
                 $('#alert-modal-body').html('There is a problem with the times you entered.');
@@ -147,60 +125,27 @@ jQuery(document).ready(function($){
             if (status == 'success')
             {
                 $('#alert-modal-title').html('Creation Success!');
-                $('#alert-modal-body').html('The lesson has been created. <br>Refreshing the page.');
+                $('#alert-modal-body').html('The content has been created. <br>Refreshing the page.');
                 $('#alert-modal').modal('show');
                 setTimeout(function(){window.location.reload();}, 3000);
             }
         },
         error: function (e) {
             $('#alert-modal-title').html('Creation Failure!');
-            $('#alert-modal-body').html('There is a problem with the times you entered.');
+            $('#alert-modal-body').html('There is a question with no correct answer.');
             $('#alert-modal').modal('show');
         }
-    });
-
-    $('#submiteditlesson').click(function() {
-        $('#cd-edit').ajaxForm({
-            type: 'POST',
-            url: '/edit-lesson',
-            data: {"pastid": lessoninfo[0]},
-            beforeSubmit: function() {
-                if(document.getElementById("edit-start").value >= document.getElementById("edit-end").value)
-                {
-                    $('#alert-modal-title').html('Creation Failure!');
-                    $('#alert-modal-body').html('There is a problem with the times you entered.');
-                    $('#alert-modal').modal('show');
-                    return false;
-                }
-                return true;
-            },
-            success: function (responseText, status, xhr, $form) {
-                if (status == 'success') {
-                    $('#alert-modal-title').html('Edit Successful!');
-                    $('#alert-modal-body').html('The lesson has been edited. <br>Refreshing the page.');
-                    $('#alert-modal').modal('show');
-                    setTimeout(function () {
-                        window.location.reload();
-                    }, 3000);
-                }
-            },
-            error: function (e) {
-                $('#alert-modal-title').html('Edit Failure!');
-                $('#alert-modal-body').html('There is a problem with the times you entered.');
-                $('#alert-modal').modal('show');
-            }
-        });
     });
 
     $('#delete-access').click(function(){
         $('#delete-modal').modal('hide');
         $.ajax({
-            url: '/delete-lesson',
-            data: lessoninfo[0],
+            url: '/delete-content',
+            data: contentinfo,
             type: 'POST',
             success: function(data){
                 $('#alert-modal-title').html('Delete Successful!');
-                $('#alert-modal-body').html('This lesson has been deleted.<br>Refreshing the page.');
+                $('#alert-modal-body').html('This content has been deleted.<br>Refreshing the page.');
                 $('#alert-modal').modal('show');
                 setTimeout(function(){window.location.reload();}, 3000);
 
@@ -211,7 +156,6 @@ jQuery(document).ready(function($){
         });
     });
 });
-
 
 //credits https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
 jQuery.fn.putCursorAtEnd = function() {
@@ -229,3 +173,49 @@ jQuery.fn.putCursorAtEnd = function() {
         }
     });
 };
+
+
+document.getElementById("create-type").addEventListener("change", function(){
+    if(document.getElementById("create-type").value == "Homework" || document.getElementById("create-type").value == "Quiz")
+    {
+        document.getElementById("add-que").style.display = "contents";
+        document.getElementById("date-end").style.display = "block";
+    }
+    else
+    {
+        document.getElementById("add-que").style.display = "none";
+        document.getElementById("date-end").style.display = "none";
+    }
+});
+
+function addQue(){
+    var newdiv = document.createElement('div');
+    newdiv.id = "q"+Elecounter;
+    newdiv.innerHTML = `<div class="form-group">
+                            <input class="form-control" id=${Elecounter} name="questions[${"q"+Elecounter}][]" placeholder=" " type="text" required="" style="box-shadow: none;border-radius:0px;">
+                            <label class="input-form" for=${Elecounter}>New Question</label>
+                            <div class="que-icons"><i class="fa fa-plus-square" style="margin-right: 5px;" onclick="addAns(this)"></i><i class="fa fa-minus-square" onclick="removeEl(this)"></i></div>
+                            </div>`;
+    document.getElementById('questions').appendChild(newdiv);
+    Elecounter++;
+}
+
+function addAns(element){
+    console.log(element.parentNode.parentNode.parentNode.id);
+    var newdiv = document.createElement('div');
+    newdiv.id = "a"+Anscounter;
+    newdiv.innerHTML = `<div class="form-group" style="width: 85%">
+                            <input class="form-control" id=${"af"+Anscounter} name="questions[${element.parentNode.parentNode.parentNode.id}][]" placeholder=" " type="text" required="" style="box-shadow: none;border-radius:0px;">
+                            <label class="input-form" for=${"af"+Anscounter}>New Answer</label>
+                            <div class="que-icons"><i class="fa fa-minus-square" onclick="removeEl(this)"></i>
+                            <input type="checkbox" name="questions[${element.parentNode.parentNode.parentNode.id}][]" style="float: right" />
+                            </div>
+                            </div>`;
+    element.parentNode.parentNode.parentNode.appendChild(newdiv);
+    Anscounter++;
+}
+
+function removeEl(element){
+    element.parentNode.parentNode.parentNode.remove();
+}
+

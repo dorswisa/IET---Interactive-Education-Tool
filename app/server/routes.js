@@ -171,26 +171,17 @@ module.exports = function(app) {
 		if (req.session.user == null || req.session.user.type == "pupil" || req.session.user.type == "teacher"){
 			res.redirect('/');
 		}	else{
-			if(req.session.user.type == "Admin") {
-				DBM.getAllUsers(function (e, usersarray) {
-					DBM.getAllParents(function (e, parentsarray) {
+			DBM.getAllUsers(function (e, usersarray) {
+				DBM.getAllParents(function (e, parentsarray) {
+					DBM.getAllMyPupils(req.session.user.id, function (e, myusers) {
 						res.render('users', {
 							udata: req.session.user,
-							users: usersarray,
+							users: req.session.user.type == "Admin" ? usersarray : myusers,
 							parents: parentsarray
 						});
 					});
 				});
-			}
-			else {
-				DBM.getAllMyPupils(req.session.user.id, function (e, array) {
-					res.render('users', {
-						udata: req.session.user,
-						users: array
-					});
-				});
-			}
-
+			});
 		}
 	});
 
@@ -255,7 +246,7 @@ module.exports = function(app) {
 	});
 
 	app.post('/create-user', function(req, res){
-		if (req.session.user == null && req.session.user.type != "Admin"){
+		if (req.session.user == null || req.session.user.type != "Admin"){
 			res.redirect('/');
 		}	else{
 			DBM.CreateNewUser({
@@ -277,23 +268,21 @@ module.exports = function(app) {
 	});
 
 	app.get('/lessons', function(req, res) {
-		if (req.session.user == null || req.session.user.type == "pupil" || req.session.user.type == "teacher"){
+		if (req.session.user == null || req.session.user.type == "Parent"){
 			res.redirect('/');
 		}	else {
-			if (req.session.user.type == "Admin") {
-				DBM.getAllTeachers(function (e, teachersarray) {
-					DBM.getAllYears(function (e, yearsarray) {
-						DBM.getAllLessons(function (e, lessonsarray) {
-							res.render('lessons', {
-								udata	: req.session.user,
-								lessons	: lessonsarray,
-								teachers: teachersarray,
-								years	: yearsarray
-							});
+			DBM.getAllTeachers(function (e, teachersarray) {
+				DBM.getAllYears(function (e, yearsarray) {
+					DBM.getAllLessons(function (e, lessonsarray) {
+						res.render('lessons', {
+							udata	: req.session.user,
+							lessons	: lessonsarray,
+							teachers: teachersarray,
+							years	: yearsarray
 						});
 					});
 				});
-			}
+			});
 		}
 	});
 
@@ -423,8 +412,152 @@ module.exports = function(app) {
 		}
 	});
 
+	app.get('/schedule', function(req, res) {
+		if (req.session.user == null || req.session.user.type == "admin" || req.session.user.type == "teacher"){
+			res.redirect('/');
+		}	else{
+			DBM.getAllMyPupils(req.session.user.id, function (e, pupsarray) {
+				DBM.getAllLessons(function (e, lsnarray) {
+					DBM.getAllTeachers(function (e, teachersarray) {
+						res.render('schedule', {
+						udata: req.session.user,
+						pupils: pupsarray,
+						lessons: lsnarray,
+						teachers: teachersarray
+						});
+					});
+				});
+			});
+		}
+	});
 
+	app.get('/lesson', function(req, res) {
+		if(req.query['id'] !== undefined) {
+			DBM.getAllTeachers(function (e, teachersarray) {
+				DBM.getAllLessons( function (e, dblessons) {
+					DBM.getAllContents( function (e, contentsarray) {
+						let lesson = dblessons.find(value => value._id.toString() == req.query['id']);
+						if (lesson) {
+							lesson.contents = lesson.contents != undefined ? lesson.contents.map(String) : null;
+							res.render('lesson', {
+								udata: req.session.user,
+								lesson: lesson,
+								teachers: teachersarray,
+								contents: lesson.contents != undefined ? contentsarray.filter(value => lesson.contents.includes(value._id.toString())) : []
+							});
+						} else res.redirect('/');
+					});
+				});
+			});
+		}
+		else res.redirect('/');
+	});
 
+	app.post('/create-content', function(req, res){
+		if (req.session.user == null && req.session.user.type != "Admin"){
+			res.redirect('/');
+		}	else{
+			DBM.CreateNewContent({
+				description	: req.body['create-des'],
+				meeting		: req.body['create-met'],
+				start		: req.body['date-start'],
+				end			: req.body['date-end'],
+				type		: req.body['create-type'],
+				questions	: req.body['questions'],
+			}, req.body.lesson, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/delete-content', function(req, res){
+		if(req.session.user.type == "Admin" || req.session.user.type == "Teacher")
+		{
+			DBM.deleteContent(Object.keys(req.body)[0], function(e, obj){
+				if (!e){
+					res.status(200).send('ok');
+				}	else{
+					res.status(400).send('record not found');
+				}
+			});
+		}
+		else
+		{
+			res.status(400).send('record not found');
+		}
+	});
+
+	app.get('/content', function(req, res) {
+		if(req.query['id'] !== undefined) {
+			DBM.getAllContents( function (e, contentsarray) {
+				DBM.getAllLessons( function (e, lessonstsarray) {
+					DBM.getAllUsers( function (e, usersarray) {
+						let content = contentsarray.find(value => value._id.toString() == req.query['id']);
+						if (content) {
+							res.render('content', {
+								udata: req.session.user,
+								content	: content,
+								lessons	: lessonstsarray,
+								users	: usersarray
+							});
+						} else res.redirect('/');
+					});
+				});
+			});
+		}
+		else res.redirect('/');
+	});
+
+	app.post('/user-send-content', function(req, res){
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			DBM.CreatePupilContent(req.body, req.session.user.id, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.post('/add-grade', function(req, res){
+		if(req.session.user == undefined || req.session.user.type == "Pupil" || req.session.user.type == "Parent"){
+			res.redirect('/');
+		}	else{
+			DBM.AddGrade(req.body.grade, req.body.contentid, req.body.userid, function(e){
+				if (e){
+					res.status(400).send(e);
+				}	else{
+					res.status(200).send('ok');
+				}
+			});
+		}
+	});
+
+	app.get('/grades', function(req, res) {
+		if (req.session.user == null || req.session.user.type == "admin" || req.session.user.type == "teacher"){
+			res.redirect('/');
+		}	else{
+			DBM.getAllLessons(function (e, lesarray) {
+				DBM.getAllContents(function (e, conarray) {
+					DBM.getAllMyPupils(req.session.user.id, function (e, puparray) {
+						res.render('grades', {
+							udata: req.session.user,
+							contents: conarray,
+							lessons: lesarray,
+							pupils: puparray
+						});
+					});
+				});
+			});
+		}
+	});
 	/*
 		rest of pages
 	*/
