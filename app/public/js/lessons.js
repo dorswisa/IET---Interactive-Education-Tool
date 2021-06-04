@@ -8,8 +8,6 @@ function getValue(data1) {
         dropArea = document.getElementById( 'drop-area' ),
         droppableArr = [], dropAreaTimeout;
 
-    console.log("8:00" >= "10:00");
-
     // initialize droppables
     [].slice.call( document.querySelectorAll( '#drop-area .drop-area__item' )).forEach( function( el ) {
         droppableArr.push( new Droppable( el, {
@@ -50,6 +48,10 @@ function getValue(data1) {
                     $('.cd-user-modal').addClass('is-visible');
                     $('.cd-user-modal').find('#cd-edit').addClass('is-selected');
                     $('.cd-user-modal').find('#cd-create').removeClass('is-selected');
+                }
+                else if(el.id == 'step-in')
+                {
+                    window.location.href = '/lesson/?id='+ lsn._id;
                 }
             }
         } ) );
@@ -156,6 +158,7 @@ jQuery(document).ready(function($){
             $('#alert-modal').modal('show');
         }
     });
+
     $('#submiteditlesson').click(function() {
         $('#cd-edit').ajaxForm({
             type: 'POST',
