@@ -3,11 +3,13 @@ extends layout
 block content
     - user = typeof(udata) != 'undefined' ? udata : undefined
     include navbar
+    - if(user.type == "Teacher" || user.type == "Pupil")
+        - var lessons = lessons.filter(value => user.lessons.includes(value._id.toString()));
     .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
         .page-info(style="text-align: center; ")
             h1(style="display: inline; margin-right: 1em;") Lessons
             if(user.type == 'Admin')
-                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none;")
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none; cursor:pointer; ")
                     i.fa.fa-plus-square
                     .tooltipp  Create lesson
                 h6 Drag and drop lesson to edit/delete.
@@ -16,24 +18,49 @@ block content
 
         ul#list.list
             .top-table
-                .year-top Year
-                .lesson-top Subject
-                .teacher-top Teacher
-                .class-lsn-top Class
-                .date-top Date
+                if(user.type != "Pupil")
+                    .year-top Year
+                    .lesson-top Subject
+                    .teacher-top Teacher
+                    .class-lsn-top Class
+                    .date-top Date
+                else
+                    .id-top Year
+                    .name-top Subject
+                    .type-top Teacher
+                    .class-top Class
+            if(user.type == "Pupil")
+                - var was = []
             each lsn in lessons
-                li.list__item
-                    .drag-me
-                        i.fas.fa-list-alt
-                        .info
-                            .year=lsn.year
-                            .lesson=lsn.name
-                            - var found = teachers.find(element => element.id == lsn.teacher);
-                            .teacher=found.name
-                            .class-lsn=lsn.class
-                            .date=lsn.day + " " + lsn.start +":00 - " + lsn.end + ":00"
+                if(user.type == "Pupil")
+                    if(!was.includes(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class))
+                        - was.push(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class)
+                        li.list__item
+                            .drag-me
+                                i.fas.fa-list-alt
+                                .info
+                                    .id=lsn.year
+                                    .name=lsn.name
+                                    - var found = teachers.find(element => element.id == lsn.teacher);
+                                    .type=found.name
+                                    .class=lsn.class
+                                    .date(style="display: none;")=lsn.day + " " + lsn.start +":00 - " + lsn.end + ":00"
+                else
+                    li.list__item
+                        .drag-me
+                            i.fas.fa-list-alt
+                            .info
+                                .year=lsn.year
+                                .lesson=lsn.name
+                                - var found = teachers.find(element => element.id == lsn.teacher);
+                                .teacher=found.name
+                                .class-lsn=lsn.class
+                                .date=lsn.day + " " + lsn.start +":00 - " + lsn.end + ":00"
 
         #drop-area.drop-area
+            #step-in.drop-area__item
+                i.fas.fa-sign-in-alt
+                .tooltipp Step in
             if(user.type == "Admin")
                 #delete.drop-area__item
                     i.fas.fa-trash-alt
@@ -41,15 +68,19 @@ block content
                 #edit.drop-area__item
                     i.fa.fa-edit
                     .tooltipp(style="left: 10px;") Edit Lesson
+            else if(user.type == "Teacher")
+                #edit.drop-area__item
+                    i.fa.fa-edit
+                    .tooltipp(style="left: 10px;") Edit Lesson
 
 
         .drop-overlay
-    if(user.type == 'Admin')
-        .cd-user-modal
-            // this is the entire modal form, including the background
-            .cd-user-modal-container
-                include modals/edit-lesson
-                include modals/create-lesson
+
+    .cd-user-modal
+        // this is the entire modal form, including the background
+        .cd-user-modal-container
+            include modals/edit-lesson
+            include modals/create-lesson
 
 
     include modals/error
