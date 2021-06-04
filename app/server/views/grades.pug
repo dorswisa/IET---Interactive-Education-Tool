@@ -1,0 +1,327 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    - var years = []
+    - var mylessons = []
+    - if(user.type == "Pupil")
+        - var mylessons = lessons.filter(value => user.lessons.includes(value._id.toString()));
+        each item in mylessons
+           - if (!years.includes(item.year))
+               - years.push(item.year)
+    - else
+        each pupil in pupils
+            - pupil.lessons = pupil.lessons.map(String)
+            - var mylessons = lessons.filter(value => pupil.lessons.includes(value._id.toString()));
+            each item in mylessons
+                - if (!years.includes(item.year))
+                    - years.push(item.year)
+
+    .header
+        .logo
+            a(href='/home')
+                img(src='/css/logo.png' width='55' height='45' alt='logo' style="left: 25px;position: absolute;")
+                h1 IET
+                h8 Interactive Education Tool
+        .search_box
+            .dropdown1#dropdown-year(data-control='checkbox-dropdown' )
+                - if(years.length == 1)
+                    label.dropdown1-label=years[0]
+                - else
+                    label.dropdown1-label Year
+                    ul.dropdown1-list
+                        each item in years
+                            label.dropdown1-option
+                                input(type='radio' name='dropdown1-group1' value=item)
+                                | #{item}
+
+    input#openSidebarMenu.openSidebarMenu(type='checkbox')
+    label.sidebarIconToggle(for='openSidebarMenu')
+        .spinner.diagonal.part-1
+        .spinner.horizontal
+        .spinner.diagonal.part-2
+    #sidebarMenu
+        ul.sidebarMenuInner
+            li
+                a(href='/home' ) Home
+            if(user !== undefined && user.type == "Pupil")
+                li
+                    a(href='/lessons' ) Lessons
+                li
+                    a(href='/schedule' ) Schedule
+                li
+                    a(href='/grades' ) Grades
+                li
+                    a(href='/contact') Contact
+            else if(user !== undefined && user.type == "Parent")
+                li
+                    a(href='/grades' ) Grades
+                li
+                    a(href='/users' ) Users
+                li
+                    a(href='/schedule' ) Schedule
+                li
+                    a(href='/contact') Contact
+            else if(user !== undefined && user.type == "Teacher")
+                li
+                    a(href='/lessons' ) Lessons
+                li
+                    a(href='/grades' ) Grades
+            else if(user !== undefined && user.type == "Admin")
+                li
+                    a(href='/years' ) Years
+                li
+                    a(href='/users' ) Users
+                li
+                    a(href='/lessons' ) Lessons
+
+            if(user !== undefined)
+                .section(style='position: absolute; display: inline-flex; width: 100%; bottom: 0;')
+                    li(style='width: 195px; overflow-x: hidden;')
+                        a(href='/my-user' style='width: 195px; overflow-x: hidden;')=user.name
+
+
+    - if(years.length == 1)
+        - if(user.type == "Pupil")
+            .grades(style = "width: 80%; position: relative; left: 10%; z-index: 2; overflow: hidden; margin-bottom: 3em; margin-top: 7em;")
+                .content-former
+                    h1(style="display: inline; margin-right: 1em;") Grades
+                    .schedule
+                        h3(style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;") Grades for year
+                            b= " "+ years[0]
+                        - var was = []
+                        each lsn in mylessons
+                            if(!was.includes(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class))
+                                - was.push(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class)
+                                - thiscon = contents.filter(value => lsn.contents.map(String).includes(value._id.toString()))
+                                section.schedule-stage
+                                    .schedule-stage__title
+                                        h3=lsn.name
+                                    .schedule-stage_guide-container(style="grid-auto-columns: 400px;")
+                                        each item in thiscon
+                                            .guide-slot
+                                                - var date = new Date(item.start)
+                                                - var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2)
+                                                p=date
+                                                .guide-slot_card
+                                                    h4(style="font-size: 1.6rem;margin-right: 0;")=item.description
+                                                    figcaption=item.users != undefined && item.users[user.id] != undefined && item.users[user.id].grade != undefined ? item.users[user.id].grade : "--"
+                                hr.divider
+        - else
+            .grades
+                each pupil in pupils
+                    .content-former(style = "width: 80%; position: relative; left: 10%; z-index: 2; overflow: hidden; margin-bottom: 3em; margin-top: 7em;")
+                        h1(style="display: inline; margin-right: 1em;") Grades
+                        .schedule
+                            h3(style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;") Grades for
+                                b=" " + pupil.name
+                                | , year
+                                b=" " + years[0]
+                            - pupil.lessons = pupil.lessons.map(String)
+                            - var mylessons = lessons.filter(value => pupil.lessons.includes(value._id.toString()));
+                            - var was = []
+                            each lsn in mylessons
+                                if(!was.includes(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class))
+                                    - was.push(lsn.name + " - " + lsn.teacher + " - " + lsn.year + " - " + lsn.class)
+                                    - thiscon = contents.filter(value => lsn.contents.map(String).includes(value._id.toString()))
+                                    section.schedule-stage
+                                        .schedule-stage__title
+                                            h3=lsn.name
+                                        .schedule-stage_guide-container(style="grid-auto-columns: 400px;")
+                                            each item in thiscon
+                                                .guide-slot
+                                                    - var date = new Date(item.start)
+                                                    - var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2)
+                                                    p=date
+                                                    .guide-slot_card
+                                                        h4(style="font-size: 1.6rem;margin-right: 0;")=item.description
+                                                        figcaption=item.users != undefined && item.users[pupil.id] != undefined && item.users[pupil.id].grade != undefined ? item.users[pupil.id].grade : "--"
+                                    hr.divider
+    - else
+        .grades
+            .content-former(style = "width: 80%; position: relative; left: 10%; z-index: 2; overflow: hidden; margin-bottom: 3em; margin-top: 7em;")
+                h1(style="display: inline; margin-right: 1em;") Grades
+                br
+                h3 To see the grades, choose year in the menu on top.
+
+    script.
+        jQuery(document).ready(function ($) {
+
+            var CheckboxDropdown = function (el) {
+                var _this = this;
+                this.isOpen = false;
+                this.areAllChecked = false;
+                this.$el = $(el);
+                this.$label = this.$el.find('.dropdown1-label');
+                this.$checkAll = this.$el.find('[data-toggle="check-all"]').first();
+                this.$inputs = this.$el.find('[type="checkbox"],[type="radio"]');
+                var text = this.$label.text();
+
+                this.onCheckBox();
+
+                this.$label.on('click', function (e) {
+                    e.preventDefault();
+                    _this.toggleOpen();
+                });
+
+                this.$checkAll.on('click', function (e) {
+                    e.preventDefault();
+                    _this.onCheckAll(text);
+                });
+
+                this.$inputs.on('change', function (e) {
+                    _this.onCheckBox(text);
+                });
+            };
+
+            CheckboxDropdown.prototype.onCheckBox = function (text) {
+                this.updateStatus(text);
+            };
+
+
+            CheckboxDropdown.prototype.updateStatus = function (text) {
+                var checked = this.$el.find(':checked');
+                var yeardd = document.querySelector('#dropdown-year');
+
+                setGrades($($(yeardd).find(':checked')).attr('value'));
+
+                this.areAllChecked = false;
+                this.$checkAll.html('Check All');
+
+                if (checked.length <= 0) {
+                    this.$label.html(text);
+                } else if (checked.length === 1) {
+                    this.$label.html(checked.parent('label').text());
+                } else if (checked.length === this.$inputs.length) {
+                    this.$label.html('All Selected');
+                    this.areAllChecked = true;
+                    this.$checkAll.html('Uncheck All');
+                } else {
+                    this.$label.html(checked.length + ' Selected');
+                }
+            };
+
+            CheckboxDropdown.prototype.onCheckAll = function (text, checkAll) {
+                if (!this.areAllChecked || checkAll) {
+                    this.areAllChecked = true;
+                    this.$checkAll.html('Uncheck All');
+                    this.$inputs.prop('checked', true);
+                } else {
+                    this.areAllChecked = false;
+                    this.$checkAll.html('Check All');
+                    this.$inputs.prop('checked', false);
+                }
+
+                this.updateStatus(text);
+            };
+
+            CheckboxDropdown.prototype.toggleOpen = function (forceOpen) {
+                var _this = this;
+
+                if (!this.isOpen || forceOpen) {
+                    this.isOpen = true;
+                    this.$el.addClass('on');
+                    this.$label.on('click', function (e) {
+                        if (!$(e.target).closest('[data-control]').length) {
+                            _this.toggleOpen();
+                        }
+                    });
+                } else {
+                    this.isOpen = false;
+                    this.$el.removeClass('on');
+                }
+            };
+
+            var checkboxesDropdowns = document.querySelectorAll('[data-control="checkbox-dropdown"]');
+            for (var i = 0, length = checkboxesDropdowns.length; i < length; i++) {
+                new CheckboxDropdown(checkboxesDropdowns[i]);
+            }
+        });
+
+        function setGrades(year)
+        {
+            var contents = !{JSON.stringify(contents)}
+            if(year != undefined)
+            {
+                var user = !{JSON.stringify(user)};
+                if(user.type == "Pupil")
+                {
+                    var output = `<div class="content-former" style = "width: 80%; position: relative; left: 10%; z-index: 2; overflow: hidden; margin-bottom: 3em; margin-top: 7em;">
+                                    <h1 style="display: inline; margin-right: 1em;">Grades</h1>
+                                    <div class="schedule">
+                                    <h3 style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;">Grades for year<b> ${year}</b></h3>`;
+                    var mylessons = !{JSON.stringify(mylessons)};
+                    var was = []
+                    for(var i=0; i<mylessons.length; i++)
+                    {
+                        if (mylessons[i].year == year && !was.includes(mylessons[i].name + " - " + mylessons[i].teacher + " - " + mylessons[i].year + " - " + mylessons[i].class))
+                        {
+                            was.push(mylessons[i].name + " - " + mylessons[i].teacher + " - " + mylessons[i].year + " - " + mylessons[i].class)
+                            var thiscon = contents.filter(value => mylessons[i].contents.map(String).includes(value._id.toString()));
+                            output += `<section class="schedule-stage">
+                                          <div class="schedule-stage__title">
+                                            <h3>${mylessons[i].name}</h3>
+                                          </div>
+                                          <div class="schedule-stage_guide-container" style="grid-auto-columns: 400px;">`
+                            for(var j=0; j<thiscon.length; j++)
+                            {
+                                var date = new Date(thiscon[j].start)
+                                var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2);
+                                var grade = thiscon[j].users != undefined && thiscon[j].users[user.id] != undefined && thiscon[j].users[user.id].grade != undefined ? thiscon[j].users[user.id].grade : "--"
+                                output += `<div class="guide-slot">
+                                           <p>${date}</p>
+                                              <div class="guide-slot_card">
+                                                <h4 style="font-size: 1.6rem;margin-right: 0;">${thiscon[j].description}</h4>
+                                                <figcaption>${grade}</figcaption>
+                                              </div>
+                                            </div>`
+                            }
+                            output += `  </div></section><hr class="divider">`
+                        }
+                    }
+                    output += `</div></div>`;
+                    console.log(output);
+
+                }
+                else
+                {
+                    var pupils = !{JSON.stringify(pupils)};
+                    var output = ``;
+                    for (var i = 0; i < pupils.length; i++) {
+                        var pupillessons = pupils[i].lessons.map(String)
+                        var mylessons = !{JSON.stringify(lessons)}.filter(value => pupillessons.includes(value._id.toString()) && value.year == year);
+                        var was = []
+                        output += `<div class="content-former" style = "width: 80%; position: relative; left: 10%; z-index: 2; overflow: hidden; margin-bottom: 3em; margin-top: 7em;">
+                                                            <h1 style="display: inline; margin-right: 1em;">Grades</h1>
+                                                            <div class="schedule">
+                                                            <h3 style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;">${"Grades for <b>" + pupils[i].name + "</b>, year <b>" + year + "</b>"}</h3>`;
+                        for (var w = 0; w < mylessons.length; w++) {
+                            if (!was.includes(mylessons[w].name + " - " + mylessons[w].teacher + " - " + mylessons[w].year + " - " + mylessons[w].class)) {
+                                was.push(mylessons[w].name + " - " + mylessons[w].teacher + " - " + mylessons[w].year + " - " + mylessons[w].class)
+                                var thiscon = contents.filter(value => mylessons[w].contents.map(String).includes(value._id.toString()));
+                                output += `<section class="schedule-stage">
+                                                                      <div class="schedule-stage__title">
+                                                                        <h3>${mylessons[w].name}</h3>
+                                                                      </div>
+                                                                      <div class="schedule-stage_guide-container" style="grid-auto-columns: 400px;">`
+                                for (var j = 0; j < thiscon.length; j++) {
+                                    var date = new Date(thiscon[j].start)
+                                    var date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2);
+                                    var grade = thiscon[j].users != undefined && thiscon[j].users[user.id] != undefined && thiscon[j].users[user.id].grade != undefined ? thiscon[j].users[user.id].grade : "--"
+                                    output += `<div class="guide-slot">
+                                                                       <p>${date}</p>
+                                                                          <div class="guide-slot_card">
+                                                                            <h4 style="font-size: 1.6rem;margin-right: 0;">${thiscon[j].description}</h4>
+                                                                            <figcaption>${grade}</figcaption>
+                                                                          </div>
+                                                                        </div>`
+                                }
+                                output += `  </div></section><hr class="divider">`
+                            }
+                        }
+                        output += `</div></div>`;
+                    }
+                }
+                $('.grades').html(output);
+            }
+        }
