@@ -1,0 +1,13 @@
+
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    link(rel='shortcut icon' type='image/png' href='/css/logo.png')
+
+    include navbar
+
+    #center.main.center
+        .mainInner
+            br
+            div I'm sorry, the page or resource you are searching for is currently unavailable.

@@ -1,0 +1,44 @@
+
+#cd-create
+    form.cd-form
+        .modal-top
+            img(src='/css/logo.png' width='75' height='75' alt='logo')
+            h1 IET
+            h5 Interactive Education Tool
+            button.close(type='button' aria-label='Close' style='color: #5E798B; outline: none;')
+                span.cd-close-form(style='font-size: 40px; aria-hidden=') &times;
+        div(style='padding-bottom: 10px')
+            h3
+                b(style="font-style: italic;")
+                    | Create Lesson
+        .form-group
+            select#create-year.form-control(name='create-year' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: #5E798B;')
+                option(value='' disabled='' selected='' style='background: white;') Select Year
+                each item in years
+                    option(style='background: white; color: black;' value=item.name)=item.name
+        .form-group
+            input#create-name.form-control(name='create-name' placeholder=' ' type='text' required='' style='box-shadow: none;border-radius:0px')
+            label.input-form(for='create-name') Lesson Name
+        .form-group
+            select#create-teacher.form-control(name='create-teacher' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: #5E798B')
+                option(value='' disabled='' selected='' style='background: white;') Select Teacher
+                each item in teachers
+                    option(style='background: white;' value=item.id)=item.name + " - " + item.id
+        .form-group
+            select#create-class.form-control(name='create-class' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: #5E798B;')
+                option(value='' disabled='' selected='' style='background: white;') Select Class
+                each item in ["A1", "A2", "B1", "B2" , "C1", "C2", "D1", "D2" , "E1", "E2", "F1", "F2", "G1", "G2", "H1", "H2", "I1", "I2", "J1", "J2", "K1", "K2", "L1", "L2"]
+                    option(style='background: white; color: black;' value=item)=item
+        .form-group
+            select#create-day.form-control(name='create-day' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: #5E798B;')
+                option(value='' disabled='' selected='' style='background: white;') Select Class
+                each item in ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                    option(style='background: white; color: black;' value=item.substring(0,3))=item
+        .form-group
+            input#create-start.form-control(name='create-start' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;')
+            label.input-form(for='create-start') Start Time
+        .form-group
+            input#create-end.form-control(name='create-end' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;')
+            label.input-form(for='create-end') End Time
+        .cd_modal-footer
+            button#submitcreateuser.btn.btfooter(type='submit') Create Lesson

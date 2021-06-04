@@ -1,0 +1,12 @@
+#connect-modal.modal.fade
+    .modal-dialog
+        .modal-content
+            .modal-header
+                img(src='/css/logo.png' width='50' height='50' alt='logo')
+                button.close(type='button' aria-label='Close' data-dismiss='modal' style='color: #93b1c5; outline: none; z-index:99')
+                    span(style='font-size: 40px;') &times;
+                h4(style="position: absolute; width: 100%; text-align:center; font-weight: bold; font-style: italic; font-size:32px;")#connect-modal-title.modal-title
+            #connect-modal-body.modal-body
+            .modal-footer(style='padding-bottom: 20px;')
+                button.btn.btfooter(type='button' data-dismiss='modal' style='margin: 0 auto; width: 200px; border-radius: 34rem;font-size: 14px; font-weight: bold; height: 46px; border: none; padding: 10px;') Close
+                button.submit.btn-warning#connect-access(type='submit' style='margin: 0 auto; width: 200px; border-radius: 34rem;font-size: 14px; font-weight: bold; height: 46px; border: none; padding: 10px; margin-right: 5px;') Connect

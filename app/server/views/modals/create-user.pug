@@ -1,0 +1,44 @@
+
+#cd-create
+    form.cd-form
+        .modal-top
+            img(src='/css/logo.png' width='75' height='75' alt='logo')
+            h1 IET
+            h5 Interactive Education Tool
+            button.close(type='button' aria-label='Close' style='color: #5E798B; outline: none;')
+                span.cd-close-form(style='font-size: 40px; aria-hidden=') &times;
+        div(style='padding-bottom: 10px')
+            h3
+                b(style="font-style: italic;")
+                    | Create User
+        .form-group
+            input#create-id.form-control(name='create-id' placeholder=' ' type='number' required='' style='box-shadow: none;border-radius:0px')
+            label.input-form(for='create-id') ID
+        .form-group
+            input#create-username.form-control(name='create-username' placeholder=' ' type='text' required='' style='box-shadow: none;border-radius:0px')
+            label.input-form(for='create-username') Full Name
+        .form-group
+            input#create-email.form-control(name='create-email' placeholder=' ' type='email' pattern='[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+' required='' style='box-shadow: none;border-radius:0px')
+            label.input-form(for='create-email') E-mail
+        .form-group
+            select#create-type.form-control(name='create-type' required style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: grey; opacity: 0.5')
+                option(value='' disabled='' selected='' style='background: white;') Select Type
+                each item in ["Admin", "Teacher", "Pupil", "Parent"]
+                    option(style='background: white;' value=item)=item
+        .form-group
+            select#create-class.form-control(name='create-class' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: grey; opacity: 0.5; display:none;')
+                option(value='' disabled='' selected='' style='background: white;') Select Class
+                each item in ["A1", "A2", "B1", "B2" , "C1", "C2", "D1", "D2" , "E1", "E2", "F1", "F2", "G1", "G2", "H1", "H2", "I1", "I2", "J1", "J2", "K1", "K2", "L1", "L2"]
+                    option(style='background: white; color: black;' value=item)=item
+        .form-group
+            select#create-parent.form-control(name='create-parent' style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none; color: grey; opacity: 0.5; display:none;')
+                option(value='' disabled='' selected='' style='background: white;') Select Parent
+                each item in parents
+                    option(style='background: white; color: black;' value=item.id)=item.name + " - " + item.id
+        .form-group
+            input#create-password.form-control(name='create-password' required placeholder=' ' type='password' pattern=".{6,}"  title="Password Should Be At Least 6 Characters" style='box-shadow: none;border-radius:0px; background-color: transparent; outline: none;')
+            label.input-form(for='create-password') Password
+            a.hide-password(href='#0')
+                img(src='/css/visibility.png')
+        .cd_modal-footer
+            button#createsubmit.btn.btfooter(type='submit') Create User
