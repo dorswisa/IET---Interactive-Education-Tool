@@ -1,0 +1,63 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    include navbar
+
+    .content-former(style="width: 60%; position: relative; left: 20%; top:15%; z-index: 2;")
+        .page-info(style="text-align: center; ")
+            h1(style="display: inline; margin-right: 1em;") #{lesson.name + " with "+ teachers.find(element => element.id == lesson.teacher).name }
+            if(user.type == 'Admin')
+                a.cd-create(style="display: inline; font-size:3em; color: #93b1c5; position: absolute; right: 16%; top: 1.5em; text-decoration: none; cursor:pointer; ")
+                    i.fa.fa-plus-square
+                    .tooltipp  Create New Content
+                h6 Drag and drop content to step-in/edit/delete.
+                h6 To create new content (meeting/quiz/homework) press on the icon.
+                br
+
+        ul#list.list
+            .top-table
+                .year-top No.
+                .description-top Description
+                .date-top Date
+            - var no = contents.length;
+            each ctn in contents.reverse()
+                - var date = new Date(ctn.start)
+                li.list__item
+                    .drag-me
+                        i.fas.fa-list-alt
+                        .info
+                            .No=no--
+                            .lesson-lesson=ctn.description
+                            .lesson-date=date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear().toString().substring(2) + ", "+ Math.floor(date.getHours() / 10) + date.getHours() % 10 +":"+Math.floor(date.getMinutes() / 10) + date.getMinutes() % 10
+
+        #drop-area.drop-area
+            #step-in.drop-area__item
+                i.fas.fa-sign-in-alt
+                .tooltipp Step in
+            if(user.type == "Admin" || user.type == "Teacher")
+                #delete.drop-area__item
+                    i.fas.fa-trash-alt
+                    .tooltipp(style="left: 3px; width: 100%;") Delete Content
+
+
+        .drop-overlay
+
+    .cd-user-modal
+        // this is the entire modal form, including the background
+        .cd-user-modal-container
+            include modals/create-content
+
+
+    include modals/error
+    include modals/delete
+
+    script.
+        $(document).ready(function () {
+            getValue(!{JSON.stringify(lesson)});
+        });
+
+    script(src='/js/draganddrop/modernizr.custom.js')
+    script(src='/js/draganddrop/draggabilly.pkgd.min.js')
+    script(src='/js/draganddrop/dragdrop.js')
+    script(src='/js/lesson.js')
