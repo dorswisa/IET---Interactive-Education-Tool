@@ -1,0 +1,39 @@
+#grade-content
+    form.cd-form
+        .modal-top
+            img(src='/css/logo.png' width='75' height='75' alt='logo')
+            h1 IET
+            h5 Interactive Education Tool
+            button.close(type='button' aria-label='Close' style='color: #5E798B; outline: none;')
+                span.cd-close-form(style='font-size: 40px; aria-hidden=') &times;
+        div(style='padding-bottom: 10px')
+            h3
+                b(style="font-style: italic;")
+                    | Grading
+        form#questionform.questions
+            - for(var quekey in content.questions)
+                .question(style="padding: 20px")
+                    h3(style="indent-text: 5em")=quekey + ") " + content.questions[quekey]
+                    .answers(style="padding: 20px 0px 0px 40px")
+                        - if(content.anstypes[quekey] == "Checkbox")
+                            - for(var i = 0; i<content.answers[quekey].length; i++)
+                                input(type='checkbox' name=quekey + "[" + i + " ]" id="q" + quekey + "a" + i disabled)
+                                label(for="q" + quekey + "a" + i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                br
+                                br
+                        - else if (content.anstypes[quekey] == "Radio")
+                            - for (var i = 0; i < content.answers[quekey].length; i++)
+                                input(type='radio' name=quekey id="q" + quekey + "a" + i value=i disabled)
+                                label(for="q" + quekey + "a" + i style="margin-top: 0.2em; font-size: 22px; float:left; margin-left: 0.5em;")= content.answers[quekey][i][0]
+                                br
+                                br
+                        - else
+                            .form-group
+                                textarea.form-control(disabled name=quekey id=quekey rows="7" placeholder=' ' style='margin-top: 0.8em; box-shadow: none;border-radius:0px; background-color: transparent; outline: none; height: 150px; width: 80%; font-size: 22px; border-bottom: 2px solid grey !important;')
+                                label.input-form(for=quekey style="font-size: 22px;") Your answer..
+                hr.divider
+            .form-group(style="display: table; margin: 3em auto;")
+                input#edit-name.form-control(name='grade' placeholder=' ' type='number' min=0 required='' style='box-shadow: none;border-radius:0px; width: 100%; border-bottom: 2px solid grey !important; ')
+                label.input-form(for='edit-name') Grade
+            .cd_modal-footer
+                button#submit.btn.btfooter(type='submit' style="width: 30%; display: table; margin: 2em auto;") Submit
