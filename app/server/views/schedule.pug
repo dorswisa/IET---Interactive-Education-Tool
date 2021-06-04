@@ -1,0 +1,307 @@
+extends layout
+
+block content
+    - user = typeof(udata) != 'undefined' ? udata : undefined
+    - var years = []
+    - var mylessons = []
+    - var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    - if(user.type == "Pupil")
+        - var mylessons = lessons.filter(value => user.lessons.includes(value._id.toString()));
+            each item in mylessons
+                - if (!years.includes(item.year))
+                    - years.push(item.year)
+    - else
+        each pupil in pupils
+            - pupil.lessons = pupil.lessons.map(String)
+            - var mylessons = lessons.filter(value => pupil.lessons.includes(value._id.toString()));
+            each item in mylessons
+                - if (!years.includes(item.year))
+                    - years.push(item.year)
+
+    .header
+        .logo
+            a(href='/home')
+                img(src='/css/logo.png' width='55' height='45' alt='logo' style="left: 25px;position: absolute;")
+                h1 IET
+                h8 Interactive Education Tool
+        .search_box
+            .dropdown1#dropdown-year(data-control='checkbox-dropdown' )
+                - if(years.length == 1)
+                    label.dropdown1-label=years[0]
+                - else
+                    label.dropdown1-label Year
+                ul.dropdown1-list
+                    each item in years
+                        label.dropdown1-option
+                            input(type='radio' name='dropdown1-group1' value=item)
+                            | #{item}
+
+    input#openSidebarMenu.openSidebarMenu(type='checkbox')
+    label.sidebarIconToggle(for='openSidebarMenu')
+        .spinner.diagonal.part-1
+        .spinner.horizontal
+        .spinner.diagonal.part-2
+    #sidebarMenu
+        ul.sidebarMenuInner
+            li
+                a(href='/home' ) Home
+            if(user !== undefined && user.type == "Pupil")
+                li
+                    a(href='/lessons' ) Lessons
+                li
+                    a(href='/schedule' ) Schedule
+                li
+                    a(href='/grades' ) Grades
+                li
+                    a(href='/contact') Contact
+            else if(user !== undefined && user.type == "Parent")
+                li
+                    a(href='/grades' ) Grades
+                li
+                    a(href='/users' ) Users
+                li
+                    a(href='/schedule' ) Schedule
+                li
+                    a(href='/contact') Contact
+            else if(user !== undefined && user.type == "Teacher")
+                li
+                    a(href='/lessons' ) Lessons
+                li
+                    a(href='/grades' ) Grades
+            else if(user !== undefined && user.type == "Admin")
+                li
+                    a(href='/years' ) Years
+                li
+                    a(href='/users' ) Users
+                li
+                    a(href='/lessons' ) Lessons
+
+            if(user !== undefined)
+                .section(style='position: absolute; display: inline-flex; width: 100%; bottom: 0;')
+                    li(style='width: 195px; overflow-x: hidden;')
+                        a(href='/my-user' style='width: 195px; overflow-x: hidden;')=user.name
+
+    .content-former(style="width: 80%; position: relative; left: 10%; top:15%; z-index: 2; overflow: hidden;")
+        h1(style="display: inline; margin-right: 1em;") Schedule
+        .schedule
+            - if(years.length == 1)
+                - if(user.type == "Pupil")
+                    h3(style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;") Schedule for year
+                        b= " "+ years[0]
+                    - for(var i=0; i<6; i++)
+                        - var daylessons = [];
+                        - for(var j=0; j<mylessons.length; j++)
+                            - if(mylessons[j].day == days[i].substring(0,3))
+                                - daylessons.push(mylessons[j])
+                        - daylessons.sort((d1, d2) => d1.start - d2.start);
+                        section.schedule-stage
+                            .schedule-stage__title
+                                h3=days[i]
+                            .schedule-stage_guide-container
+                                each item in daylessons
+                                    .guide-slot
+                                        p=item.start + ":00 - " + item.end + ":00"
+                                        .guide-slot_card
+                                            h4=item.name
+                                            figcaption=teachers.find(element => element.id.toString() == item.teacher).name
+                        hr.divider
+                - else
+                    each pupil in pupils
+                        br
+                        h3(style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;") Schedule for
+                            b=" "+pupil.name
+                            | , year
+                            b=" " +years[0]
+                        - pupil.lessons = pupil.lessons.map(String)
+                        - var mylessons = lessons.filter(value => pupil.lessons.includes(value._id.toString()));
+                        - var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                        - for (var i = 0; i < 6; i++)
+                            - var daylessons = [];
+                            - for (var j = 0; j < mylessons.length; j++)
+                                - if (mylessons[j].day == days[i].substring(0, 3))
+                                    - daylessons.push(mylessons[j])
+                            - daylessons.sort((d1, d2) => d1.start - d2.start);
+                            section.schedule-stage
+                                .schedule-stage__title
+                                    h3=days[i]
+                                .schedule-stage_guide-container
+                                    each item in daylessons
+                                        .guide-slot
+                                            p=item.start + ":00 - " + item.end + ":00"
+                                            .guide-slot_card
+                                                h4=item.name
+                                                figcaption=teachers.find(element => element.id.toString() == item.teacher).name
+                            hr.divider
+            - else
+                br
+                h3 To see the schedule, choose year in the menu on top.
+
+    script.
+        jQuery(document).ready(function ($) {
+
+            var CheckboxDropdown = function (el) {
+                var _this = this;
+                this.isOpen = false;
+                this.areAllChecked = false;
+                this.$el = $(el);
+                this.$label = this.$el.find('.dropdown1-label');
+                this.$checkAll = this.$el.find('[data-toggle="check-all"]').first();
+                this.$inputs = this.$el.find('[type="checkbox"],[type="radio"]');
+                var text = this.$label.text();
+
+                this.onCheckBox();
+
+                this.$label.on('click', function (e) {
+                    e.preventDefault();
+                    _this.toggleOpen();
+                });
+
+                this.$checkAll.on('click', function (e) {
+                    e.preventDefault();
+                    _this.onCheckAll(text);
+                });
+
+                this.$inputs.on('change', function (e) {
+                    _this.onCheckBox(text);
+                });
+            };
+
+            CheckboxDropdown.prototype.onCheckBox = function (text) {
+                this.updateStatus(text);
+            };
+
+
+            CheckboxDropdown.prototype.updateStatus = function (text) {
+                var checked = this.$el.find(':checked');
+                var yeardd = document.querySelector('#dropdown-year');
+
+                setSchedules($($(yeardd).find(':checked')).attr('value'));
+
+                this.areAllChecked = false;
+                this.$checkAll.html('Check All');
+
+                if (checked.length <= 0) {
+                    this.$label.html(text);
+                } else if (checked.length === 1) {
+                    this.$label.html(checked.parent('label').text());
+                } else if (checked.length === this.$inputs.length) {
+                    this.$label.html('All Selected');
+                    this.areAllChecked = true;
+                    this.$checkAll.html('Uncheck All');
+                } else {
+                    this.$label.html(checked.length + ' Selected');
+                }
+            };
+
+            CheckboxDropdown.prototype.onCheckAll = function (text, checkAll) {
+                if (!this.areAllChecked || checkAll) {
+                    this.areAllChecked = true;
+                    this.$checkAll.html('Uncheck All');
+                    this.$inputs.prop('checked', true);
+                } else {
+                    this.areAllChecked = false;
+                    this.$checkAll.html('Check All');
+                    this.$inputs.prop('checked', false);
+                }
+
+                this.updateStatus(text);
+            };
+
+            CheckboxDropdown.prototype.toggleOpen = function (forceOpen) {
+                var _this = this;
+
+                if (!this.isOpen || forceOpen) {
+                    this.isOpen = true;
+                    this.$el.addClass('on');
+                    this.$label.on('click', function (e) {
+                        if (!$(e.target).closest('[data-control]').length) {
+                            _this.toggleOpen();
+                        }
+                    });
+                } else {
+                    this.isOpen = false;
+                    this.$el.removeClass('on');
+                }
+            };
+
+            var checkboxesDropdowns = document.querySelectorAll('[data-control="checkbox-dropdown"]');
+            for (var i = 0, length = checkboxesDropdowns.length; i < length; i++) {
+                new CheckboxDropdown(checkboxesDropdowns[i]);
+            }
+        });
+
+        function setSchedules(year)
+        {
+            if(year != undefined)
+            {
+                var user = !{JSON.stringify(user)};
+                if(user.type == "Pupil")
+                {
+                    var output = `<h3 style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;">${"Schedule for year <b>"+year+"</b>"}</h3>`;
+                    var mylessons = !{JSON.stringify(mylessons)};
+                    var days = !{JSON.stringify(days)};
+                    for (var i = 0; i < 6; i++)
+                    {
+                        var daylessons = [];
+                        for (var j = 0; j < mylessons.length; j++) {
+                            if (mylessons[j].day == days[i].substring(0, 3) && mylessons[j].year == year)
+                                daylessons.push(mylessons[j])
+                        }
+                        daylessons.sort((d1, d2) => d1.start - d2.start);
+                        output += `<section class="schedule-stage">
+                                      <div class="schedule-stage__title">
+                                        <h3>${days[i]}</h3>
+                                      </div>
+                                      <div class="schedule-stage_guide-container">`
+                        for (var j = 0; j < daylessons.length; j++) {
+                            output += `<div class="guide-slot">
+                                       <p>${daylessons[j].start + ":00 - " + daylessons[j].end + ":00"}</p>
+                                          <div class="guide-slot_card">
+                                            <h4>${daylessons[j].name}</h4>
+                                            <figcaption>${!{JSON.stringify(teachers)}.find(element => element.id.toString() == daylessons[j].teacher).name}</figcaption>
+                                          </div>
+                                        </div>`
+                        }
+                        output += `  </div></section><hr class="divider">`
+                    }
+                }
+                else
+                {
+                    var pupils = !{JSON.stringify(pupils)};
+                    var days = !{JSON.stringify(days)};
+                    var output = ``;
+                    for(var i=0; i < pupils.length; i++) {
+                        var pupillessons = pupils[i].lessons.map(String)
+                        var mylessons = !{JSON.stringify(lessons)}.filter(value => pupillessons.includes(value._id.toString()));
+                        output += `<br><h3 style="display: inline; margin-right: 1em; margin: 0 auto; display: table; margin-top: 1em;">${"Schedule for <b>" + pupils[i].name + "</b>, year <b>" + year+"</b>"}</h3>`;
+                        for (var z = 0; z < 6; z++)
+                        {
+                            var daylessons = [];
+                            for (var j = 0; j < mylessons.length; j++)
+                            {
+                                if (mylessons[j].day == days[z].substring(0, 3) && mylessons[j].year == year)
+                                    daylessons.push(mylessons[j])
+                            }
+                            daylessons.sort((d1, d2) => d1.start - d2.start);
+                            output += `<section class="schedule-stage">
+                                                              <div class="schedule-stage__title">
+                                                                <h3>${days[z]}</h3>
+                                                              </div>
+                                                              <div class="schedule-stage_guide-container">`
+                            for (var j = 0; j < daylessons.length; j++) {
+                                output += `<div class="guide-slot">
+                                                               <p>${daylessons[j].start + ":00 - " + daylessons[j].end + ":00"}</p>
+                                                                  <div class="guide-slot_card">
+                                                                    <h4>${daylessons[j].name}</h4>
+                                                                    <figcaption>${!{JSON.stringify(teachers)}.find(element => element.id.toString() == daylessons[j].teacher).name}</figcaption>
+                                                                  </div>
+                                                                </div>`
+                            }
+                            output += `  </div></section><hr class="divider">`
+                        }
+                    }
+                    console.log(output);
+                }
+                $('.schedule').html(output);
+            }
+        }
