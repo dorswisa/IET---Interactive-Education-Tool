@@ -50,10 +50,10 @@ before(function(done) {
         console.log('Express server listening on port ' + app.get('port'));
     });
 
-    this.timeout(3000);
+    this.timeout(2500);
     setTimeout(function(){
         done();
-    }, 2000)
+    }, 1500)
 });
 
 var agent = request.agent(app);
