@@ -50,6 +50,7 @@ before(function(done) {
         console.log('Express server listening on port ' + app.get('port'));
     });
 
+    this.timeout(3000);
     setTimeout(function(){
         done();
     }, 1300)
