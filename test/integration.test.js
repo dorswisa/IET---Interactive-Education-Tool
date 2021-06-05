@@ -53,7 +53,7 @@ before(function(done) {
     this.timeout(3000);
     setTimeout(function(){
         done();
-    }, 1300)
+    }, 2000)
 });
 
 var agent = request.agent(app);
