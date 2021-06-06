@@ -41,7 +41,6 @@ block content
                                         label.input-form(for=quekey style="font-size: 22px;") Your answer..
                         hr.divider
                 button.btn.btfooter#sendform(type="button" style="width: 30%; margin: 0 auto; display: table; margin-top: 5em;") Submit
-
     - else
 
         - var lesson = lessons.find(value => value.contents.map(String).includes(content._id.toString()));
@@ -80,8 +79,6 @@ block content
             // this is the entire modal form, including the background
             .cd-user-modal-container(style="max-width: 60%; margin-bottom: 10em !important; ")
                 include modals/grading-content
-
-
 
 
     include modals/connect
@@ -212,9 +209,6 @@ block content
                 $form_create.addClass('is-selected');
             }
 
-    script.
-        jQuery(document).ready(function ($) {
-
             $('#sendform').click(function(){
                 $('#connect-modal-title').html('Pay attention!');
                 $('#connect-modal-body').html('Are you sure you want to submit this form?.');
@@ -242,7 +236,6 @@ block content
                     }
                 });
             });
-            
             $('#submit').click(function () {
                 $('#grade-content').ajaxForm({
                     type: 'POST',
